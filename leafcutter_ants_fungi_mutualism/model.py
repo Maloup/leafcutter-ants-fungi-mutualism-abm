@@ -25,10 +25,14 @@ class LeafcutterAntsFungiMutualismModel(Model):
     The scheduler is a special model component which controls the order in which agents are activated.
     """
 
-    def __init__(self, num_ants, num_plants, width, height):
+    def __init__(self, num_ants=50, num_plants=20, width=20, height=50,
+                 pheromone_lifespan=75, num_plant_leaves=20):
         super().__init__()
         self.num_ants = num_ants
         self.num_plants = num_plants
+        self.pheromone_lifespan = pheromone_lifespan
+        self.num_plant_leaves = num_plant_leaves
+
         self.schedule = RandomActivation(self)
         self.grid = MultiGrid(width=width, height=height, torus=False)
 
@@ -37,7 +41,6 @@ class LeafcutterAntsFungiMutualismModel(Model):
 
         self.init_agents()
 
-        # example data collector
         self.datacollector = DataCollector(
             model_reporters={
                 "Fungus Energy": lambda model: model.fungi[0].energy,
