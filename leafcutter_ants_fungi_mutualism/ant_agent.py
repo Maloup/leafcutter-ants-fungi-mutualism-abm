@@ -50,7 +50,7 @@ class AntAgent(RandomWalkerAgent):
             # both plant and pheromone in neighborhood, randomly choose state to
             # go to.
             self.state = self.random.choice([
-                    AntWorkerState.RECRUIT, AntWorkerState.HARVEST])
+                AntWorkerState.RECRUIT, AntWorkerState.HARVEST])
         elif nearby_plants:
             plant = self.random.choice(nearby_plants)
             plant.take_leaf()
@@ -79,7 +79,8 @@ class AntAgent(RandomWalkerAgent):
 
         # step towards nest
         x_step, y_step = self.get_direction_towards_nest()
-        self.model.grid.move_agent(self, (self.pos[0] + x_step, self.pos[1] + y_step))
+        self.model.grid.move_agent(
+            self, (self.pos[0] + x_step, self.pos[1] + y_step))
 
     def harvest_step(self):
         """
@@ -103,7 +104,8 @@ class AntAgent(RandomWalkerAgent):
                 return
 
             x_step, y_step = self.get_direction_towards_nest()
-            self.model.grid.move_agent(self, (self.pos[0] + x_step, self.pos[1] + y_step))
+            self.model.grid.move_agent(
+                self, (self.pos[0] + x_step, self.pos[1] + y_step))
         else:
             neighbors = self.model.grid.get_neighbors(self.pos, moore=True)
 
@@ -116,7 +118,8 @@ class AntAgent(RandomWalkerAgent):
                 return
 
             # follow pheromone trail
-            nearby_pheromones = [p for p in neighbors if isinstance(p, Pheromone)]
+            nearby_pheromones = [
+                p for p in neighbors if isinstance(p, Pheromone)]
             if not nearby_pheromones:
                 # pheromones disappeared
                 self.state = AntWorkerState.EXPLORE
@@ -137,11 +140,13 @@ class AntAgent(RandomWalkerAgent):
                 #   by never moving to a pheromone if it brings the ant closer to the
                 #   nest. it will move to a random non-pheromone square instead to try
                 #   and escape the bad pheromone trail
-                neighborhood = self.model.grid.get_neighborhood(self.pos, moore=True)
+                neighborhood = self.model.grid.get_neighborhood(
+                    self.pos, moore=True)
                 self.random.shuffle(neighborhood)
                 no_pheromone_neighbor = None
                 for neighbor in neighborhood:
-                    neighbor_agents = self.model.grid.get_cell_list_contents(neighbor)
+                    neighbor_agents = self.model.grid.get_cell_list_contents(
+                        neighbor)
                     for agent in neighbor_agents:
                         if isinstance(agent, Pheromone):
                             break
@@ -174,7 +179,7 @@ class AntAgent(RandomWalkerAgent):
         nest_x, nest_y = self.model.nest_pos
         self_x, self_y = self.pos
 
-        angle = np.arctan2(nest_x - self_x, nest_y -  self_y)
+        angle = np.arctan2(nest_x - self_x, nest_y - self_y)
         x_step = round(np.sin(angle))
         y_step = round(np.cos(angle))
 

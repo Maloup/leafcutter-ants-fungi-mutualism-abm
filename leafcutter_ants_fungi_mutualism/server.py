@@ -18,7 +18,7 @@ def circle_portrayal_example(agent):
 
     if isinstance(agent, AntAgent):
         portrayal = {
-            "Shape": "circle", #"leafcutter_ants_fungi_mutualism/resources/ant.png"
+            "Shape": "circle",  # "leafcutter_ants_fungi_mutualism/resources/ant.png"
             "Color": "brown",
             "Layer": 1,
             "Filled": True,
@@ -32,7 +32,7 @@ def circle_portrayal_example(agent):
         return portrayal
     elif isinstance(agent, Plant):
         return {
-            "Shape": "circle", #"leafcutter_ants_fungi_mutualism/resources/plant.png"
+            "Shape": "circle",  # "leafcutter_ants_fungi_mutualism/resources/plant.png"
             "Color": "green",
             "Layer": 0,
             "r": agent.num_leaves/agent.initial_num_leaves
@@ -59,6 +59,7 @@ def circle_portrayal_example(agent):
             "Layer": 0,
             "r": 0.75
         }
+
 
 canvas_element = CanvasGrid(circle_portrayal_example, 50, 50, 650, 650)
 fungus_energy_element = ChartModule([{
