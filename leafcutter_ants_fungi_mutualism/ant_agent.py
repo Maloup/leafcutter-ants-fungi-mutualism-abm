@@ -52,6 +52,9 @@ class AntAgent(RandomWalkerAgent):
             self.state = self.random.choice([
                     AntWorkerState.RECRUIT, AntWorkerState.HARVEST])
         elif nearby_plants:
+            plant = self.random.choice(nearby_plants)
+            plant.take_leaf()
+            self.has_leaf = True
             self.state = AntWorkerState.RECRUIT
         elif nearby_pheromones:
             # XXX: should following state transition happen probabilistically to
@@ -72,9 +75,7 @@ class AntAgent(RandomWalkerAgent):
 
         # leave pheromone on current location
         # TODO: should this have some extra energy cost?
-        agent = Pheromone(self.model.next_id(), self.model)
-        self.model.schedule.add(agent)
-        self.model.grid.place_agent(agent, self.pos)
+        self.leave_pheromone()
 
         # step towards nest
         x_step, y_step = self.get_direction_towards_nest()
@@ -87,8 +88,8 @@ class AntAgent(RandomWalkerAgent):
         carry it to the nest to feed the fungus.
         """
         if self.has_leaf:
-            # return to nest with leaf
             # XXX: should the ant renew the pheromones when returning?
+            # return to nest with leaf
             if self.pos == self.model.nest_pos:
                 # found nest, feed fungus
                 # TODO: now assumes we have just a single fungus, decide on how
@@ -120,17 +121,43 @@ class AntAgent(RandomWalkerAgent):
 
             # follow trail outwards from the nest towards the plant
             # XXX: is this the best way to do this?
-            # XXX: if there is no plant anymore at the end of a pheromone trail
-            #   (or the trail is shortened due to decaying pheromones), the ant
-            #   will dance around the end of the pheromone trail until it is
-            #   fully decayed. i'm not sure if this is observed in real ants or
-            #   whether this is going to be a problem. a potential fix is to
-            #   never move to a pheromone if it brings the ant closer to the
-            #   nest.
             pheromones_dists = [manhattan_distance(p.pos, self.model.nest_pos)
                                 for p in nearby_pheromones]
             outwards_pheromone = nearby_pheromones[np.argmax(pheromones_dists)]
-            self.model.grid.move_agent(self, outwards_pheromone.pos)
+            if manhattan_distance(outwards_pheromone.pos, self.model.nest_pos) < \
+               manhattan_distance(self.pos, self.model.nest_pos):
+                # XXX: if there is no plant anymore at the end of a pheromone trail
+                #   (or the trail is shortened due to decaying pheromones), the ant
+                #   will dance around the end of the pheromone trail until it is
+                #   fully decayed. i'm not sure if this is observed in real ants or
+                #   whether this is going to be a problem. this currently fixes this
+                #   by never moving to a pheromone if it brings the ant closer to the
+                #   nest. it will move to a random non-pheromone square instead to try
+                #   and escape the bad pheromone trail
+                neighborhood = self.model.grid.get_neighborhood(self.pos, moore=True)
+                self.random.shuffle(neighborhood)
+                no_pheromone_neighbor = None
+                for neighbor in neighborhood:
+                    neighbor_agents = self.model.grid.get_cell_list_contents(neighbor)
+                    for agent in neighbor_agents:
+                        if isinstance(agent, Pheromone):
+                            break
+                    else:
+                        no_pheromone_neighbor = neighbor
+
+                if no_pheromone_neighbor:
+                    self.model.grid.move_agent(self, no_pheromone_neighbor)
+                else:
+                    # all neighbors have pheromones on them, do a random move
+                    # (unlikely but possible)
+                    self.random_move()
+            else:
+                self.model.grid.move_agent(self, outwards_pheromone.pos)
+
+    def leave_pheromone(self):
+        agent = Pheromone(self.model.next_id(), self.model)
+        self.model.schedule.add(agent)
+        self.model.grid.place_agent(agent, self.pos)
 
     def get_direction_towards_nest(self):
         """
