@@ -1,0 +1,72 @@
+from mesa import Agent, Model
+from mesa.time import RandomActivation
+from mesa.space import MultiGrid
+from mesa.datacollection import DataCollector
+
+from .ant_agent import AntAgent
+from .plant import Plant
+from .nest import Nest
+
+
+class LeafcutterAntsFungiMutualismModel(Model):
+    """
+    The model class holds the model-level attributes, manages the agents, and generally handles
+    the global level of our model.
+
+    There is only one model-level parameter: how many agents the model contains. When a new model
+    is started, we want it to populate itself with the given number of agents.
+
+    The scheduler is a special model component which controls the order in which agents are activated.
+    """
+
+    def __init__(self, num_ants, num_plants, width, height):
+        super().__init__()
+        self.num_ants = num_ants
+        self.num_plants = num_plants
+        self.schedule = RandomActivation(self)
+        self.grid = MultiGrid(width=width, height=height, torus=False)
+
+        self.nest_pos = (self.grid.width // 2, self.grid.height // 2)
+
+        self.init_agents()
+
+        # example data collector
+        self.datacollector = DataCollector()
+
+        self.running = True
+        self.datacollector.collect(self)
+
+    def init_agents(self):
+        self.init_nest()
+        self.init_plants()
+        self.init_ants()
+
+    def init_nest(self):
+        agent = Nest(self.next_id(), self)
+        self.schedule.add(agent)
+        self.grid.place_agent(agent, self.nest_pos)
+
+    def init_plants(self):
+        for i in range(self.num_plants):
+            # XXX: should every plant have the same number of leaves, or should
+            # we add some randomness to that?
+            agent = Plant(self.next_id(), self)
+            self.schedule.add(agent)
+
+            x = self.random.randrange(self.grid.width)
+            y = self.random.randrange(self.grid.height)
+            self.grid.place_agent(agent, (x, y))
+
+    def init_ants(self):
+        for i in range(self.num_ants):
+            agent = AntAgent(self.next_id(), self)
+            self.schedule.add(agent)
+
+            self.grid.place_agent(agent, self.nest_pos)
+
+    def step(self):
+        """
+        A model step. Used for collecting data and advancing the schedule
+        """
+        self.datacollector.collect(self)
+        self.schedule.step()
