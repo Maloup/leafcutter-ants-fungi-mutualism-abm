@@ -9,6 +9,7 @@ from .pheromone import Pheromone
 
 from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.modules import CanvasGrid, ChartModule
+from mesa.visualization.UserParam import UserSettableParameter
 
 
 def circle_portrayal_example(agent):
@@ -69,7 +70,12 @@ ant_leaves_element = ChartModule([{
     "Color": "green"
 }], data_collector_name="datacollector")
 
-model_kwargs = {"num_ants": 50, "num_plants": 20, "width": 50, "height": 50}
+model_kwargs = {
+    "num_ants": UserSettableParameter("slider", "Number of ants", 50, 1, 200, 1),
+    "num_plants": UserSettableParameter("slider", "Number of wlants", 20, 1, 100, 1),
+    "width": 50,
+    "height": 50
+}
 
 server = ModularServer(
     LeafcutterAntsFungiMutualismModel,
