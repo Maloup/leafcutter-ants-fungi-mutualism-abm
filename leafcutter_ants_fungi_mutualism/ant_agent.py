@@ -42,16 +42,9 @@ class AntAgent(RandomWalkerAgent):
         """
         self.random_move()
 
-        neighbors = self.model.grid.get_neighbors(self.pos, moore=True)
-        nearby_plants = [p for p in neighbors if isinstance(p, Plant)]
-        nearby_pheromones = [p for p in neighbors if isinstance(p, Pheromone)]
+        nearby_plants, nearby_pheromones = self.get_nearby_plants_and_pheromones()
 
-        if nearby_plants and nearby_pheromones:
-            # both plant and pheromone in neighborhood, randomly choose state to
-            # go to.
-            self.state = self.random.choice([
-                AntWorkerState.RECRUIT, AntWorkerState.HARVEST])
-        elif nearby_plants:
+        if nearby_plants:
             plant = self.random.choice(nearby_plants)
             plant.take_leaf()
             self.has_leaf = True
@@ -107,9 +100,7 @@ class AntAgent(RandomWalkerAgent):
             self.model.grid.move_agent(
                 self, (self.pos[0] + x_step, self.pos[1] + y_step))
         else:
-            neighbors = self.model.grid.get_neighbors(self.pos, moore=True)
-
-            nearby_plants = [p for p in neighbors if isinstance(p, Plant)]
+            nearby_plants, nearby_pheromones = self.get_nearby_plants_and_pheromones()
             if nearby_plants:
                 # found plant, get leaf
                 plant = self.random.choice(nearby_plants)
@@ -118,8 +109,7 @@ class AntAgent(RandomWalkerAgent):
                 return
 
             # follow pheromone trail
-            nearby_pheromones = [
-                p for p in neighbors if isinstance(p, Pheromone)]
+
             if not nearby_pheromones:
                 # pheromones disappeared
                 self.state = AntWorkerState.EXPLORE
@@ -190,4 +180,16 @@ class AntAgent(RandomWalkerAgent):
         x_step = round(np.sin(angle))
         y_step = round(np.cos(angle))
 
-        return (x_step, y_step)
+        return x_step, y_step
+
+    def get_nearby_plants_and_pheromones(self):
+        neighbors = self.model.grid.get_neighbors(self.pos, moore=True)
+        nearby_plants = []
+        nearby_pheromones = []
+        for p in neighbors:
+            if isinstance(p, Plant):
+                nearby_plants.append(p)
+            elif isinstance(p, Pheromone):
+                nearby_pheromones.append(p)
+
+        return nearby_plants, nearby_pheromones
