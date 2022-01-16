@@ -75,7 +75,7 @@ class AntAgent(RandomWalkerAgent):
 
         # leave pheromone on current location
         # TODO: should this have some extra energy cost?
-        self.leave_pheromone()
+        self.put_pheromone()
 
         # step towards nest
         x_step, y_step = self.get_direction_towards_nest()
@@ -154,7 +154,10 @@ class AntAgent(RandomWalkerAgent):
             else:
                 self.model.grid.move_agent(self, outwards_pheromone.pos)
 
-    def leave_pheromone(self):
+    def put_pheromone(self):
+        """
+        Put a pheromone on the current position of the ant.
+        """
         agent = Pheromone(self.model.next_id(), self.model)
         self.model.schedule.add(agent)
         self.model.grid.place_agent(agent, self.pos)
