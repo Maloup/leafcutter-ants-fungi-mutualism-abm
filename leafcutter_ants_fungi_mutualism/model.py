@@ -26,7 +26,7 @@ class LeafcutterAntsFungiMutualismModel(Model):
     """
 
     def __init__(self, num_ants=50, num_plants=20, width=20, height=50,
-                 pheromone_lifespan=75, num_plant_leaves=20):
+                 pheromone_lifespan=30, num_plant_leaves=20):
         super().__init__()
         self.num_ants = num_ants
         self.num_plants = num_plants

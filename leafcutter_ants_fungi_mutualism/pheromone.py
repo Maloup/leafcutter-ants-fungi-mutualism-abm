@@ -7,6 +7,9 @@ class Pheromone(Agent):
         self.initial_lifespan = self.model.pheromone_lifespan
         self.lifespan = self.model.pheromone_lifespan
 
+    def remark(self):
+        self.lifespan = self.model.pheromone_lifespan
+
     def step(self):
         self.lifespan -= 1
 

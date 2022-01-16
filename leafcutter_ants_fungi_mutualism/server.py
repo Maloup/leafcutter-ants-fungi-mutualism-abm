@@ -74,8 +74,12 @@ ant_leaves_element = ChartModule([{
 model_kwargs = {
     "num_ants": UserSettableParameter("slider", "Number of ants", 50, 1, 200, 1),
     "num_plants": UserSettableParameter("slider", "Number of plants", 20, 1, 100, 1),
-    "pheromone_lifespan": UserSettableParameter("slider", "Pheromone lifespan", 75, 1, 300, 1),
-    "num_plant_leaves": UserSettableParameter("slider", "Number of leaves on plant", 20, 1, 100, 1),
+    "pheromone_lifespan": UserSettableParameter(
+        "slider", "Pheromone lifespan", 30, 1, 300, 1
+    ),
+    "num_plant_leaves": UserSettableParameter(
+        "slider", "Number of leaves on plant", 20, 1, 100, 1
+    ),
     "width": 50,
     "height": 50
 }

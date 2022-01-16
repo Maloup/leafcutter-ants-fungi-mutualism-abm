@@ -89,10 +89,6 @@ class AntAgent(RandomWalkerAgent):
         carry it to the nest to feed the fungus.
         """
         if self.has_leaf:
-            # XXX: should the ant renew the pheromones when returning? maybe
-            #   increment the pheromone lifetime by a small amount if it
-            #   has succesfully gathered a leaf from it?
-
             # return to nest with leaf
             if self.pos == self.model.nest_pos:
                 # found nest, feed fungus
@@ -102,6 +98,10 @@ class AntAgent(RandomWalkerAgent):
                 self.has_leaf = False
                 self.state = AntWorkerState.EXPLORE
                 return
+
+            # Long distance foraging routs are repeatedly re-marked by ants
+            #   traveling along these trails (Jaffé & Howse 1979)
+            self.put_pheromone()
 
             x_step, y_step = self.get_direction_towards_nest()
             self.model.grid.move_agent(
@@ -164,8 +164,15 @@ class AntAgent(RandomWalkerAgent):
 
     def put_pheromone(self):
         """
-        Put a pheromone on the current position of the ant.
+        Put a pheromone on the current position of the ant if there is none yet,
+        otherwise re-mark the cell.
         """
+        cell_agents = self.model.grid.get_cell_list_contents(self.pos)
+        for agent in cell_agents:
+            if isinstance(agent, Pheromone):
+                agent.remark()
+                return
+
         agent = Pheromone(self.model.next_id(), self.model)
         self.model.schedule.add(agent)
         self.model.grid.place_agent(agent, self.pos)
