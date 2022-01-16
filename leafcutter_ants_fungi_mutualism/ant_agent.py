@@ -36,9 +36,9 @@ class AntAgent(RandomWalkerAgent):
         1. It finds a pheromone and switches to harvest state in which it
            will follow the pherome trail to the plant and return a leaf to the
            nest.
-        2. It finds a plant, after which it will switch to recruit mode to
+        2. It finds a plant, after which it will switch to the recruit state to
            alert other ants of the location of the plant.
-        If it finds both, it will go into one of two states probabilistically.
+        If it finds both, it will go into the recruit state.
         """
         self.random_move()
 
