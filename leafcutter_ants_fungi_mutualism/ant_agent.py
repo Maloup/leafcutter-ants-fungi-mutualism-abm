@@ -90,8 +90,10 @@ class AntAgent(RandomWalkerAgent):
             # return to nest with leaf
             # XXX: should the ant renew the pheromones when returning?
             if self.pos == self.model.nest_pos:
-                # found nest
-                # TODO: process feeding of fungus here. for now, just remove leaf from ant
+                # found nest, feed fungus
+                # TODO: now assumes we have just a single fungus, decide on how
+                #   to handle fungi
+                self.model.fungi[0].feed()
                 self.has_leaf = False
                 self.state = AntWorkerState.EXPLORE
                 return

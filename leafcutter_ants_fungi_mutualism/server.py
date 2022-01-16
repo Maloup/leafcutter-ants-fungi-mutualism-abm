@@ -60,7 +60,10 @@ def circle_portrayal_example(agent):
         }
 
 canvas_element = CanvasGrid(circle_portrayal_example, 50, 50, 650, 650)
-chart_element = ChartModule([{"Label": "LeafcutterAntsFungiMutualism", "Color": "Pink"}])
+chart_element = ChartModule([{
+    "Label": "Fungus Energy",
+    "Color": "Black"
+}], data_collector_name="datacollector")
 
 model_kwargs = {"num_ants": 50, "num_plants": 20, "width": 50, "height": 50}
 

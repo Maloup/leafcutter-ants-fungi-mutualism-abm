@@ -6,6 +6,7 @@ from mesa.datacollection import DataCollector
 from .ant_agent import AntAgent
 from .plant import Plant
 from .nest import Nest
+from .fungus import Fungus
 
 
 class LeafcutterAntsFungiMutualismModel(Model):
@@ -27,11 +28,14 @@ class LeafcutterAntsFungiMutualismModel(Model):
         self.grid = MultiGrid(width=width, height=height, torus=False)
 
         self.nest_pos = (self.grid.width // 2, self.grid.height // 2)
+        self.fungi = []
 
         self.init_agents()
 
         # example data collector
-        self.datacollector = DataCollector()
+        self.datacollector = DataCollector(
+            model_reporters={"Fungus Energy": lambda model: model.fungi[0].energy}
+        )
 
         self.running = True
         self.datacollector.collect(self)
@@ -40,6 +44,7 @@ class LeafcutterAntsFungiMutualismModel(Model):
         self.init_nest()
         self.init_plants()
         self.init_ants()
+        self.init_fungus()
 
     def init_nest(self):
         agent = Nest(self.next_id(), self)
@@ -63,6 +68,12 @@ class LeafcutterAntsFungiMutualismModel(Model):
             self.schedule.add(agent)
 
             self.grid.place_agent(agent, self.nest_pos)
+
+    def init_fungus(self):
+        agent = Fungus(self.next_id(), self)
+        self.schedule.add(agent)
+        self.grid.place_agent(agent, self.nest_pos)
+        self.fungi.append(agent)
 
     def step(self):
         """
