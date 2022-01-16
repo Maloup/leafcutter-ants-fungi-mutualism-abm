@@ -3,7 +3,7 @@ Configure visualization elements and instantiate a server
 """
 
 from .model import (
-    LeafcutterAntsFungiMutualismModel, AntAgent, Plant, Nest
+    LeafcutterAntsFungiMutualismModel, AntAgent, Plant, Nest, Fungus
 )
 from .pheromone import Pheromone
 
@@ -12,7 +12,7 @@ from mesa.visualization.modules import CanvasGrid, ChartModule
 
 
 def circle_portrayal_example(agent):
-    if agent is None:
+    if agent is None or isinstance(agent, Fungus):
         return
 
     if isinstance(agent, AntAgent):
