@@ -60,16 +60,20 @@ def circle_portrayal_example(agent):
         }
 
 canvas_element = CanvasGrid(circle_portrayal_example, 50, 50, 650, 650)
-chart_element = ChartModule([{
+fungus_energy_element = ChartModule([{
     "Label": "Fungus Energy",
-    "Color": "Black"
+    "Color": "black"
+}], data_collector_name="datacollector")
+ant_leaves_element = ChartModule([{
+    "Label": "Ants with Leaves",
+    "Color": "green"
 }], data_collector_name="datacollector")
 
 model_kwargs = {"num_ants": 50, "num_plants": 20, "width": 50, "height": 50}
 
 server = ModularServer(
     LeafcutterAntsFungiMutualismModel,
-    [canvas_element, chart_element],
+    [canvas_element, fungus_energy_element, ant_leaves_element],
     "LeafcutterAntsFungiMutualism",
     model_kwargs,
 )

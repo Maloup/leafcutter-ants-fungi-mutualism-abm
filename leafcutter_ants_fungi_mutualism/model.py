@@ -9,6 +9,11 @@ from .nest import Nest
 from .fungus import Fungus
 
 
+def track_leaves(model):
+    return sum(1 for agent in model.schedule.agents
+               if isinstance(agent, AntAgent) and agent.has_leaf)
+
+
 class LeafcutterAntsFungiMutualismModel(Model):
     """
     The model class holds the model-level attributes, manages the agents, and generally handles
@@ -34,7 +39,10 @@ class LeafcutterAntsFungiMutualismModel(Model):
 
         # example data collector
         self.datacollector = DataCollector(
-            model_reporters={"Fungus Energy": lambda model: model.fungi[0].energy}
+            model_reporters={
+                "Fungus Energy": lambda model: model.fungi[0].energy,
+                "Ants with Leaves": track_leaves,
+            }
         )
 
         self.running = True
