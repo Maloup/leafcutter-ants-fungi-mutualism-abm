@@ -72,7 +72,7 @@ ant_leaves_element = ChartModule([{
 
 model_kwargs = {
     "num_ants": UserSettableParameter("slider", "Number of ants", 50, 1, 200, 1),
-    "num_plants": UserSettableParameter("slider", "Number of wlants", 20, 1, 100, 1),
+    "num_plants": UserSettableParameter("slider", "Number of plants", 20, 1, 100, 1),
     "width": 50,
     "height": 50
 }
