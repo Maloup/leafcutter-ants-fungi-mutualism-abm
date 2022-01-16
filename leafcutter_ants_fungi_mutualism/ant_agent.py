@@ -34,7 +34,7 @@ class AntAgent(RandomWalkerAgent):
         When in explore state, the worker ant does a random walk until one of
         the following events occurs:
         1. It finds a pheromone and switches to harvest state in which it
-           will follow the pherome path to the plant and return a leaf to the
+           will follow the pherome trail to the plant and return a leaf to the
            nest.
         2. It finds a plant, after which it will switch to recruit mode to
            alert other ants of the location of the plant.
@@ -61,11 +61,11 @@ class AntAgent(RandomWalkerAgent):
     def recruit_step(self):
         """
         In the recruit state, the ant returns to the hive in a straight line
-        (using its memory/sensing abilities) while leaving a pheromone path for
+        (using its memory/sensing abilities) while leaving a pheromone trail for
         other ants to find and harvest the plant.
         """
         if self.pos == self.model.nest_pos:
-            # found nest, task of laying pheromone path complete, return to
+            # found nest, task of laying pheromone trail complete, return to
             # explore state
             self.state = AntWorkerState.EXPLORE
             return
@@ -82,7 +82,7 @@ class AntAgent(RandomWalkerAgent):
 
     def harvest_step(self):
         """
-        In the harvest state, the ant follows the path of pheromones towards
+        In the harvest state, the ant follows the trail of pheromones towards
         the plant. If it arrives at a plant, it will cut a piece of leaf off and
         carry it to the nest to feed the fungus.
         """
@@ -111,18 +111,18 @@ class AntAgent(RandomWalkerAgent):
                 self.has_leaf = True
                 return
 
-            # follow pheromone path
+            # follow pheromone trail
             nearby_pheromones = [p for p in neighbors if isinstance(p, Pheromone)]
             if not nearby_pheromones:
                 # pheromones disappeared
                 self.state = AntWorkerState.EXPLORE
                 return
 
-            # follow path outwards from the nest towards the plant
+            # follow trail outwards from the nest towards the plant
             # XXX: is this the best way to do this?
-            # XXX: if there is no plant anymore at the end of a pheromone path
-            #   (or the path is shortened due to decaying pheromones), the ant
-            #   will dance around the end of the pheromone path until it is
+            # XXX: if there is no plant anymore at the end of a pheromone trail
+            #   (or the trail is shortened due to decaying pheromones), the ant
+            #   will dance around the end of the pheromone trail until it is
             #   fully decayed. i'm not sure if this is observed in real ants or
             #   whether this is going to be a problem. a potential fix is to
             #   never move to a pheromone if it brings the ant closer to the
