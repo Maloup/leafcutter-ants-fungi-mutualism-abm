@@ -88,7 +88,10 @@ class AntAgent(RandomWalkerAgent):
         carry it to the nest to feed the fungus.
         """
         if self.has_leaf:
-            # XXX: should the ant renew the pheromones when returning?
+            # XXX: should the ant renew the pheromones when returning? maybe
+            #   increment the pheromone lifetime by a small amount if it
+            #   has succesfully gathered a leaf from it?
+
             # return to nest with leaf
             if self.pos == self.model.nest_pos:
                 # found nest, feed fungus
