@@ -13,7 +13,7 @@ from mesa.visualization.UserParam import UserSettableParameter
 
 
 def circle_portrayal_example(agent):
-    if agent is None or isinstance(agent, Fungus):
+    if agent is None:
         return
 
     if isinstance(agent, AntAgent):
@@ -44,6 +44,19 @@ def circle_portrayal_example(agent):
             "Layer": 0,
             "r": 1
         }
+    elif isinstance(agent, Fungus):
+        portrayal = {
+            "Shape": "circle",
+            "Color": "purple",
+            "Layer": 0,
+            "r": 0.85
+        }
+
+        if agent.dead:
+            portrayal["text"] = "dead"
+            portrayal["text_color"] = "purple"
+
+        return portrayal
     elif isinstance(agent, Pheromone):
         return {
             "Shape": "circle",
@@ -61,10 +74,14 @@ def circle_portrayal_example(agent):
         }
 
 
-canvas_element = CanvasGrid(circle_portrayal_example, 50, 50, 650, 650)
-fungus_energy_element = ChartModule([{
-    "Label": "Fungus Energy",
+canvas_element = CanvasGrid(circle_portrayal_example, 50, 50, 500, 500)
+fungus_biomass_element = ChartModule([{
+    "Label": "Fungus Biomass",
     "Color": "black"
+}], data_collector_name="datacollector")
+ants_biomass_element = ChartModule([{
+    "Label": "Ant Biomass",
+    "Color": "brown"
 }], data_collector_name="datacollector")
 ant_leaves_element = ChartModule([{
     "Label": "Ants with Leaves",
@@ -73,12 +90,24 @@ ant_leaves_element = ChartModule([{
 
 model_kwargs = {
     "num_ants": UserSettableParameter("slider", "Number of ants", 50, 1, 200, 1),
-    "num_plants": UserSettableParameter("slider", "Number of plants", 20, 1, 100, 1),
+    "num_plants": UserSettableParameter("slider", "Number of plants", 30, 1, 100, 1),
+    "num_plant_leaves": UserSettableParameter(
+        "slider", "Number of leaves on plant", 100, 1, 500, 1
+    ),
+    "leaf_regrowth_rate": UserSettableParameter(
+        "slider", "Leaf regrowth rate", 1/2, 0, 1, 0.01
+    ),
     "pheromone_lifespan": UserSettableParameter(
         "slider", "Pheromone lifespan", 30, 1, 300, 1
     ),
-    "num_plant_leaves": UserSettableParameter(
-        "slider", "Number of leaves on plant", 20, 1, 100, 1
+    "ant_death_probability": UserSettableParameter(
+        "slider", "Ant death probability", 0.01, 0.01, 0.5, 0.01
+    ),
+    "initial_fungus_energy": UserSettableParameter(
+        "slider", "Initial fungus energy", 50, 1, 200, 1
+    ),
+    "fungus_decay_rate": UserSettableParameter(
+        "slider", "Fungus decay rate", 1/50, 0, 1, 0.01
     ),
     "width": 50,
     "height": 50
@@ -86,7 +115,7 @@ model_kwargs = {
 
 server = ModularServer(
     LeafcutterAntsFungiMutualismModel,
-    [canvas_element, fungus_energy_element, ant_leaves_element],
+    [canvas_element, fungus_biomass_element, ants_biomass_element, ant_leaves_element],
     "LeafcutterAntsFungiMutualism",
     model_kwargs,
 )

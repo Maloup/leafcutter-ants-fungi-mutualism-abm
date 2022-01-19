@@ -22,6 +22,11 @@ class AntAgent(RandomWalkerAgent):
         self.has_leaf = False
 
     def step(self):
+        if self.random.random() <= self.model.ant_death_probability:
+            self.model.grid._remove_agent(self.pos, self)
+            self.model.schedule.remove(self)
+            return
+
         if self.state == AntWorkerState.EXPLORE:
             self.explore_step()
         elif self.state == AntWorkerState.RECRUIT:
@@ -46,13 +51,13 @@ class AntAgent(RandomWalkerAgent):
 
         if nearby_plants:
             plant = self.random.choice(nearby_plants)
-            plant.take_leaf()
-            self.has_leaf = True
-            self.state = AntWorkerState.RECRUIT
+            if plant.take_leaf():
+                self.has_leaf = True
+                self.state = AntWorkerState.RECRUIT
         elif nearby_pheromones:
-            # XXX: should following state transition happen probabilistically to
-            # ensure that some ants still explore?
-            self.state = AntWorkerState.HARVEST
+            # XXX: should following state transition happen probabilistically?
+            if self.random.random() <= 0.5:
+                self.state = AntWorkerState.HARVEST
 
     def recruit_step(self):
         """
@@ -60,7 +65,7 @@ class AntAgent(RandomWalkerAgent):
         (using its memory/sensing abilities) while leaving a pheromone trail for
         other ants to find and harvest the plant.
         """
-        if self.pos == self.model.nest_pos:
+        if self.model.on_nest(self):
             # found nest, task of laying pheromone trail complete, return to
             # explore state
             self.state = AntWorkerState.EXPLORE
@@ -83,7 +88,7 @@ class AntAgent(RandomWalkerAgent):
         """
         if self.has_leaf:
             # return to nest with leaf
-            if self.pos == self.model.nest_pos:
+            if self.model.on_nest(self):
                 # found nest, feed fungus
                 # TODO: now assumes we have just a single fungus, decide on how
                 #   to handle fungi
@@ -104,8 +109,11 @@ class AntAgent(RandomWalkerAgent):
             if nearby_plants:
                 # found plant, get leaf
                 plant = self.random.choice(nearby_plants)
-                plant.take_leaf()
-                self.has_leaf = True
+                if plant.take_leaf():
+                    self.has_leaf = True
+                else:
+                    # plant's leaves have been exhausted, return to exploring
+                    self.state = AntWorkerState.EXPLORE
                 return
 
             # follow pheromone trail
@@ -116,10 +124,16 @@ class AntAgent(RandomWalkerAgent):
                 return
 
             # follow trail outwards from the nest towards the plant
-            # XXX: is this the best way to do this?
-            pheromones_dists = [manhattan_distance(p.pos, self.model.nest_pos)
-                                for p in nearby_pheromones]
-            outwards_pheromone = nearby_pheromones[np.argmax(pheromones_dists)]
+            outwards_pheromone = None
+            if len(nearby_pheromones) == 1:
+                outwards_pheromone = nearby_pheromones[0]
+            else:
+                # choose random outwards going pheromone
+                pheromones_dists = [manhattan_distance(p.pos, self.model.nest_pos)
+                                    for p in nearby_pheromones]
+                del nearby_pheromones[np.argmin(pheromones_dists)]
+                outwards_pheromone = self.random.choice(nearby_pheromones)
+
             if manhattan_distance(outwards_pheromone.pos, self.model.nest_pos) < \
                manhattan_distance(self.pos, self.model.nest_pos):
                 # XXX: if there is no plant anymore at the end of a pheromone trail
