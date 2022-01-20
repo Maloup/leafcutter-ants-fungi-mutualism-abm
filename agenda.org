@@ -6,9 +6,11 @@
 ** Fungus [2/2]
    - [X] change list of fungi to single fungus instance
    - [X] replace fungi[0] with fungus everywhere
-** Nest [/]
+** Nest [0/5]
    - [ ] Add energy buffer
    - [ ] Implement caretakers
    - [ ] Implement biomass -> energy conversion via caretaker
    - [ ] Implement energy -> offspring conversion via buffer
    - [ ] Change nest_pos to nest.pos
+* Dynamic Task Allocation [/]
+  - [ ] The rest of the fucking owl
