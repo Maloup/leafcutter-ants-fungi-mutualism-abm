@@ -91,7 +91,7 @@ class AntAgent(BiasedRandomWalkerAgent):
                 # found nest, feed fungus
                 # TODO: now assumes we have just a single fungus, decide on how
                 #   to handle fungi
-                self.model.fungi[0].feed()
+                self.model.fungus.feed()
                 self.has_leaf = False
                 self.state = AntWorkerState.EXPLORE
                 return
@@ -122,9 +122,9 @@ class AntAgent(BiasedRandomWalkerAgent):
                 self.state = AntWorkerState.EXPLORE
                 return
 
-            ant_dist_from_nest = manhattan_distance(self.pos, self.model.nest_pos)
+            ant_dist_from_nest = manhattan_distance(self.pos, self.model.nest.pos)
             pheromones_dist_change = np.array([
-                manhattan_distance(p.pos, self.model.nest_pos) - ant_dist_from_nest
+                manhattan_distance(p.pos, self.model.nest.pos) - ant_dist_from_nest
                 for p in nearby_pheromones
             ])
             if np.all(pheromones_dist_change <= 0):
@@ -160,7 +160,7 @@ class AntAgent(BiasedRandomWalkerAgent):
         first element corresponding to the x direction and the second element
         corresponding to the y direction. Directions are in {-1, 0, 1}.
         """
-        nest_x, nest_y = self.model.nest_pos
+        nest_x, nest_y = self.model.nest.pos
         self_x, self_y = self.pos
 
         angle = np.arctan2(nest_x - self_x, nest_y - self_y)

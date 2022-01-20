@@ -3,9 +3,9 @@
   - [X] phermone trail tracking
   - [X] return with leaf to nest
 * Inside Nest
-** Fungus [0/2]
-   - [ ] change list of fungi to single fungus instance
-   - [ ] replace fungi[0] with fungus everywhere
+** Fungus [2/2]
+   - [X] change list of fungi to single fungus instance
+   - [X] replace fungi[0] with fungus everywhere
 ** Nest [/]
    - [ ] Add energy buffer
    - [ ] Implement caretakers

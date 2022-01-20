@@ -12,11 +12,11 @@ class Nest(Agent):
             agent = AntAgent(self.model.next_id(), self.model)
             self.model.schedule.add(agent)
 
-            self.model.grid.place_agent(agent, self.model.nest_pos)
+            self.model.grid.place_agent(agent, self.pos)
 
     def step(self):
         # TODO: make this nice, parameterize some stuff. also, this should be
         #   somehow proportional to the amount of caretakers
-        offspring_size = int(self.model.biomass_offspring_cvn*self.model.fungi[0].biomass)
+        offspring_size = int(self.model.biomass_offspring_cvn*self.model.fungus.biomass)
         self.ant_birth(offspring_size)
-        self.model.fungi[0].biomass -= offspring_size
+        self.model.fungus.biomass -= offspring_size
