@@ -11,28 +11,32 @@ class AntWorkerState(Enum):
     EXPLORE = auto()
     RECRUIT = auto()
     HARVEST = auto()
+    CTAKING = auto()
 
 
 class AntAgent(BiasedRandomWalkerAgent):
-    def __init__(self, unique_id, model):
+    def __init__(self, unique_id, model, state = AntWorkerState.EXPLORE):
         self.unique_id = unique_id
         super().__init__(unique_id, model)
-
-        self.state = AntWorkerState.EXPLORE
+        self.state = state
         self.has_leaf = False
 
     def step(self):
+        # mortality
         if self.random.random() <= self.model.ant_death_probability:
             self.model.grid._remove_agent(self.pos, self)
             self.model.schedule.remove(self)
             return
 
+        # be nice if Python had pattern matching with enums
         if self.state == AntWorkerState.EXPLORE:
             self.explore_step()
         elif self.state == AntWorkerState.RECRUIT:
             self.recruit_step()
         elif self.state == AntWorkerState.HARVEST:
             self.harvest_step()
+        elif self.state == AntWorkerState.CTAKING:
+            self.caretaking_step()
 
     def explore_step(self):
         """
@@ -90,7 +94,7 @@ class AntAgent(BiasedRandomWalkerAgent):
             if self.model.on_nest(self):
                 # found nest, feed fungus
                 # TODO: now assumes we have just a single fungus, decide on how
-                #   to handle fungi
+                # transfer leaf to fungus
                 self.model.fungus.feed()
                 self.has_leaf = False
                 self.state = AntWorkerState.EXPLORE
@@ -138,6 +142,20 @@ class AntAgent(BiasedRandomWalkerAgent):
             rand_outwards = self.random.choice(outwards_pheromones)
             outwards_pheromone = nearby_pheromones[rand_outwards]
             self.model.grid.move_agent(self, outwards_pheromone.pos)
+
+    def caretaking_step(self):
+        """
+        If enough fungus is available, then feed one unit to larvae
+        (decrement `fungus.biomass`, increment `nest.energy_buffer``).
+        """
+        # TODO: we can also track the number of caretakers in the model
+        #   and perform the feeding step in one function call instead of
+        #   individually for every caretaker ant. This can be considered once
+        #   we have task allocation/switching up and running.
+        if self.model.fungus.biomass > 0:
+            self.model.feed_larvae()
+        else:
+            pass # TODO: maybe task-switching can be implemented here?
 
     def put_pheromone(self):
         """

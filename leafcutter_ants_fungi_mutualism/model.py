@@ -4,6 +4,7 @@ from mesa.space import MultiGrid
 from mesa.datacollection import DataCollector
 
 from .ant_agent import AntAgent
+from .ant_agent import AntWorkerState
 from .plant import Plant
 from .nest import Nest
 from .fungus import Fungus
@@ -32,9 +33,13 @@ class LeafcutterAntsFungiMutualismModel(Model):
 
     def __init__(self, num_ants=50, num_plants=30, width=20, height=50,
                  pheromone_lifespan=30, num_plant_leaves=100,
+                 initial_foragers_ratio = 0.5,
                  leaf_regrowth_rate=1/2, ant_death_probability=0.01,
-                 initial_fungus_energy=50, fungus_decay_rate=1/50, biomass_offspring_cvn = 0.1):
+                 initial_fungus_energy=50, fungus_decay_rate=1/50,
+                 biomass_offspring_cvn = 0.1, biomass_energy_cvn = 1.0,
+                 fungus_biomass_death_threshold = 5.0):
         super().__init__()
+        # TODO: can we create a macro that can automate these assignments?
         self.num_ants = num_ants
         self.num_plants = num_plants
         self.pheromone_lifespan = pheromone_lifespan
@@ -44,9 +49,13 @@ class LeafcutterAntsFungiMutualismModel(Model):
         self.initial_fungus_energy = initial_fungus_energy
         self.fungus_decay_rate = fungus_decay_rate
         self.biomass_offspring_cvn = biomass_offspring_cvn
+        self.biomass_energy_cvn = biomass_energy_cvn
+
+        self.fungus_biomass_death_threshold = fungus_biomass_death_threshold
 
         self.schedule = RandomActivation(self)
         self.grid = MultiGrid(width=width, height=height, torus=False)
+        self.initial_foragers_ratio = initial_foragers_ratio
 
         self.nest = None
         self.fungus = None
@@ -94,10 +103,15 @@ class LeafcutterAntsFungiMutualismModel(Model):
             self.grid.place_agent(agent, (x, y))
 
     def init_ants(self):
-        for i in range(self.num_ants):
+        foragers_count = int(self.initial_foragers_ratio * self.num_ants)
+        for i in range(foragers_count):
+            # default state is explorer
             agent = AntAgent(self.next_id(), self)
             self.schedule.add(agent)
-
+            self.grid.place_agent(agent, self.nest.pos)
+        for i in range(self.num_ants - foragers_count):
+            agent = AntAgent(self.next_id(), self, state = AntWorkerState.CTAKING)
+            self.schedule.add(agent)
             self.grid.place_agent(agent, self.nest.pos)
 
     def init_fungus(self):
@@ -107,6 +121,15 @@ class LeafcutterAntsFungiMutualismModel(Model):
 
     def on_nest(self, agent):
         return agent.pos == self.nest.pos
+
+    def feed_larvae(self):
+        # WARN: check for non-zero fungal biomass is assumed to be
+        # done by caller. If this check is done then expect no problems
+        # unless there are race conditions.
+        self.fungus.biomass -= 1.0
+        # `biomass_energy_cvn` defaults to 1.0
+        self.nest.energy_buffer += self.biomass_energy_cvn * 1.0
+
 
     def step(self):
         """

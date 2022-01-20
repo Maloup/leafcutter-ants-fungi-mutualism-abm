@@ -16,8 +16,7 @@ class Fungus(Agent):
         if not self.dead:
             self.biomass -= self.model.fungus_decay_rate*self.biomass
 
-            # TODO: parameterize biomass death threshold
-            if self.biomass <= 5:
+            if self.biomass <= self.model.fungus_biomass_death_threshold:
                 self.dead = True
             elif self.energy > 0:
                 self.biomass += self.energy
