@@ -3,10 +3,11 @@
   - [X] phermone trail tracking
   - [X] return with leaf to nest
 * Inside Nest
-** Fungus [2/3]
+** Fungus [3/3]
    - [X] change list of fungi to single fungus instance
    - [X] replace fungi[0] with fungus everywhere
-   - [ ] parameterize death biomass threshold
+   - [X] parameterize death biomass threshold
+   - [ ] Refine fungus feed threshold initial value
 ** Nest [6/8]
    - [X] Add energy buffer
    - [X] initial distribution of foragers and caretakers

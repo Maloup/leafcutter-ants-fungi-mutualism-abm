@@ -51,7 +51,7 @@ class LeafcutterAntsFungiMutualismModel(Model):
         self.biomass_offspring_cvn = biomass_offspring_cvn
         self.biomass_energy_cvn = biomass_energy_cvn
         self.energy_per_offspring = energy_per_offspring
-
+        self.fungus_feed_threshold = fungus_feed_threshold
         self.fungus_biomass_death_threshold = fungus_biomass_death_threshold
 
         self.schedule = RandomActivation(self)
