@@ -14,7 +14,7 @@ class Fungus(Agent):
 
     def step(self):
         if not self.dead:
-            self.biomass -= self.model.fungus_decay_rate*self.biomass
+            self.biomass -= self.model.fungus_decay_rate * self.biomass
 
             if self.biomass <= self.model.fungus_biomass_death_threshold:
                 self.dead = True

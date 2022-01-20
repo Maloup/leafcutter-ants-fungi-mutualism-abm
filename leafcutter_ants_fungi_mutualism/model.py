@@ -33,11 +33,11 @@ class LeafcutterAntsFungiMutualismModel(Model):
 
     def __init__(self, num_ants=50, num_plants=30, width=20, height=50,
                  pheromone_lifespan=30, num_plant_leaves=100,
-                 initial_foragers_ratio = 0.5,
+                 initial_foragers_ratio = 0.5, energy_per_offspring = 1.0,
                  leaf_regrowth_rate=1/2, ant_death_probability=0.01,
                  initial_fungus_energy=50, fungus_decay_rate=1/50,
                  biomass_offspring_cvn = 0.1, biomass_energy_cvn = 1.0,
-                 fungus_biomass_death_threshold = 5.0):
+                 fungus_biomass_death_threshold = 5.0, fungus_feed_threshold = 5.0):
         super().__init__()
         # TODO: can we create a macro that can automate these assignments?
         self.num_ants = num_ants
@@ -50,6 +50,7 @@ class LeafcutterAntsFungiMutualismModel(Model):
         self.fungus_decay_rate = fungus_decay_rate
         self.biomass_offspring_cvn = biomass_offspring_cvn
         self.biomass_energy_cvn = biomass_energy_cvn
+        self.energy_per_offspring = energy_per_offspring
 
         self.fungus_biomass_death_threshold = fungus_biomass_death_threshold
 
@@ -126,9 +127,10 @@ class LeafcutterAntsFungiMutualismModel(Model):
         # WARN: check for non-zero fungal biomass is assumed to be
         # done by caller. If this check is done then expect no problems
         # unless there are race conditions.
-        self.fungus.biomass -= 1.0
-        # `biomass_energy_cvn` defaults to 1.0
-        self.nest.energy_buffer += self.biomass_energy_cvn * 1.0
+        if (self.fungus.biomass > 1.0):
+            self.fungus.biomass -= 1.0
+            # `biomass_energy_cvn` defaults to 1.0
+            self.nest.energy_buffer += self.biomass_energy_cvn * 1.0
 
 
     def step(self):

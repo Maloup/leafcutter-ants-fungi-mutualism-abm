@@ -152,7 +152,7 @@ class AntAgent(BiasedRandomWalkerAgent):
         #   and perform the feeding step in one function call instead of
         #   individually for every caretaker ant. This can be considered once
         #   we have task allocation/switching up and running.
-        if self.model.fungus.biomass > 0:
+        if not self.model.fungus.dead or self.model.fungus.biomass >= self.model.fungus_feed_threshold:
             self.model.feed_larvae()
         else:
             pass # TODO: maybe task-switching can be implemented here?
