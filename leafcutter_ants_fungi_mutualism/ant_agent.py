@@ -123,48 +123,22 @@ class AntAgent(RandomWalkerAgent):
                 self.state = AntWorkerState.EXPLORE
                 return
 
-            # follow trail outwards from the nest towards the plant
-            outwards_pheromone = None
-            if len(nearby_pheromones) == 1:
-                outwards_pheromone = nearby_pheromones[0]
-            else:
-                # choose random outwards going pheromone
-                pheromones_dists = [manhattan_distance(p.pos, self.model.nest_pos)
-                                    for p in nearby_pheromones]
-                del nearby_pheromones[np.argmin(pheromones_dists)]
-                outwards_pheromone = self.random.choice(nearby_pheromones)
+            ant_dist_from_nest = manhattan_distance(self.pos, self.model.nest_pos)
+            pheromones_dist_change = np.array([
+                manhattan_distance(p.pos, self.model.nest_pos) - ant_dist_from_nest
+                for p in nearby_pheromones
+            ])
+            if np.all(pheromones_dist_change <= 0):
+                # no outwards going pheromones near, do explore step
+                self.state = AntWorkerState.EXPLORE
+                self.explore_step()
+                return
 
-            if manhattan_distance(outwards_pheromone.pos, self.model.nest_pos) < \
-               manhattan_distance(self.pos, self.model.nest_pos):
-                # XXX: if there is no plant anymore at the end of a pheromone trail
-                #   (or the trail is shortened due to decaying pheromones), the ant
-                #   will dance around the end of the pheromone trail until it is
-                #   fully decayed. i'm not sure if this is observed in real ants or
-                #   whether this is going to be a problem. this currently fixes this
-                #   by never moving to a pheromone if it brings the ant closer to the
-                #   nest. it will move to a random non-pheromone square instead to try
-                #   and escape the bad pheromone trail
-                neighborhood = self.model.grid.get_neighborhood(
-                    self.pos, moore=True)
-                self.random.shuffle(neighborhood)
-                no_pheromone_neighbor = None
-                for neighbor in neighborhood:
-                    neighbor_agents = self.model.grid.get_cell_list_contents(
-                        neighbor)
-                    for agent in neighbor_agents:
-                        if isinstance(agent, Pheromone):
-                            break
-                    else:
-                        no_pheromone_neighbor = neighbor
-
-                if no_pheromone_neighbor:
-                    self.model.grid.move_agent(self, no_pheromone_neighbor)
-                else:
-                    # all neighbors have pheromones on them, do a random move
-                    # (unlikely but possible)
-                    self.random_move()
-            else:
-                self.model.grid.move_agent(self, outwards_pheromone.pos)
+            # choose random outwards going pheromone
+            outwards_pheromones = np.argwhere(pheromones_dist_change > 0).flatten()
+            rand_outwards = self.random.choice(outwards_pheromones)
+            outwards_pheromone = nearby_pheromones[rand_outwards]
+            self.model.grid.move_agent(self, outwards_pheromone.pos)
 
     def put_pheromone(self):
         """
@@ -197,7 +171,8 @@ class AntAgent(RandomWalkerAgent):
         return x_step, y_step
 
     def get_nearby_plants_and_pheromones(self):
-        neighbors = self.model.grid.get_neighbors(self.pos, moore=True)
+        neighbors = self.model.grid.get_neighbors(
+            self.pos, moore=True, include_center=True)
         nearby_plants = []
         nearby_pheromones = []
         for p in neighbors:

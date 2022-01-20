@@ -17,6 +17,6 @@ class Nest(Agent):
     def step(self):
         # TODO: make this nice, parameterize some stuff. also, this should be
         #   somehow proportional to the amount of caretakers
-        offspring_size = int(abs(0.1*self.model.fungi[0].biomass))
+        offspring_size = int(0.1*self.model.fungi[0].biomass)
         self.ant_birth(offspring_size)
         self.model.fungi[0].biomass -= offspring_size
