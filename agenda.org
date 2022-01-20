@@ -1,0 +1,14 @@
+* Outside Nest [3/3]
+  - [X] biased random walk
+  - [X] phermone trail tracking
+  - [X] return with leaf to nest
+* Inside Nest
+** Fungus [0/2]
+   - [ ] change list of fungi to single fungus instance
+   - [ ] replace fungi[0] with fungus everywhere
+** Nest [/]
+   - [ ] Add energy buffer
+   - [ ] Implement caretakers
+   - [ ] Implement biomass -> energy conversion via caretaker
+   - [ ] Implement energy -> offspring conversion via buffer
+   - [ ] Change nest_pos to nest.pos
