@@ -1,4 +1,4 @@
-from .random_walker_agent import RandomWalkerAgent
+from .biased_random_walker_agent import BiasedRandomWalkerAgent
 from .plant import Plant
 from .pheromone import Pheromone
 from .util import manhattan_distance
@@ -13,7 +13,7 @@ class AntWorkerState(Enum):
     HARVEST = auto()
 
 
-class AntAgent(RandomWalkerAgent):
+class AntAgent(BiasedRandomWalkerAgent):
     def __init__(self, unique_id, model):
         self.unique_id = unique_id
         super().__init__(unique_id, model)
@@ -56,8 +56,7 @@ class AntAgent(RandomWalkerAgent):
                 self.state = AntWorkerState.RECRUIT
         elif nearby_pheromones:
             # XXX: should following state transition happen probabilistically?
-            if self.random.random() <= 0.5:
-                self.state = AntWorkerState.HARVEST
+            self.state = AntWorkerState.HARVEST
 
     def recruit_step(self):
         """
