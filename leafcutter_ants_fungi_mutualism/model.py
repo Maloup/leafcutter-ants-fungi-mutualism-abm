@@ -33,7 +33,7 @@ class LeafcutterAntsFungiMutualismModel(Model):
     def __init__(self, num_ants=50, num_plants=30, width=20, height=50,
                  pheromone_lifespan=30, num_plant_leaves=100,
                  leaf_regrowth_rate=1/2, ant_death_probability=0.01,
-                 initial_fungus_energy=50, fungus_decay_rate=1/50):
+                 initial_fungus_energy=50, fungus_decay_rate=1/50, biomass_offspring_cvn = 0.1):
         super().__init__()
         self.num_ants = num_ants
         self.num_plants = num_plants
@@ -41,8 +41,9 @@ class LeafcutterAntsFungiMutualismModel(Model):
         self.num_plant_leaves = num_plant_leaves
         self.leaf_regrowth_rate = leaf_regrowth_rate
         self.ant_death_probability = ant_death_probability
-        self.initial_fungus_energy = 50
+        self.initial_fungus_energy = initial_fungus_energy
         self.fungus_decay_rate = fungus_decay_rate
+        self.biomass_offspring_cvn = biomass_offspring_cvn
 
         self.schedule = RandomActivation(self)
         self.grid = MultiGrid(width=width, height=height, torus=False)

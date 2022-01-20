@@ -109,6 +109,9 @@ model_kwargs = {
     "fungus_decay_rate": UserSettableParameter(
         "slider", "Fungus decay rate", 1/50, 0, 1, 0.01
     ),
+    "biomass_offspring_cvn": UserSettableParameter(
+        "slider", "biomass-offspring conversion factor", 0.1, 0, 1, 0.01
+    ),
     "width": 50,
     "height": 50
 }

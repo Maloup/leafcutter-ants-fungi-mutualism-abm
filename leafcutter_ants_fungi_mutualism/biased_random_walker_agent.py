@@ -22,9 +22,7 @@ class BiasedRandomWalkerAgent(Agent):
             dists = np.array([manhattan_distance(self.prev_pos, n)
                               for n in neighbors])
             prob_dist = dists/np.sum(dists)
-            print(neighbors, prob_dist)
             next_idx = np.random.choice(len(neighbors), p=prob_dist)
-            print(next_idx)
             next_pos = neighbors[next_idx]
 
         self.prev_pos = self.pos
