@@ -43,12 +43,20 @@ output_variables = {"Ants_Biomass": track_ants,
 
 variable_parameters = {'num_ants': [20,50]}
 
+# batch = BatchRunner(LeafcutterAntsFungiMutualismModel,
+#                     max_steps = time_steps, 
+#                     variable_parameters = variable_parameters,
+#                     iterations = repetitions,
+#                     model_reporters = output_variables,
+#                     display_progress = True)
+
 batch = BatchRunner(LeafcutterAntsFungiMutualismModel,
                     max_steps = time_steps, 
                     variable_parameters = variable_parameters,
                     iterations = repetitions,
                     model_reporters = output_variables,
                     display_progress = True)
+
 
 batch.run_all()
 
