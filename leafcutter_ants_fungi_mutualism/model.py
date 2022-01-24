@@ -35,10 +35,10 @@ class LeafcutterAntsFungiMutualismModel(Model):
                  initial_foragers_ratio = 0.5, energy_per_offspring = 1.0,
                  leaf_regrowth_rate=1/2, ant_death_probability=0.01,
                  initial_fungus_energy=50, fungus_decay_rate=1/50,
-                 biomass_offspring_cvn = 0.1, biomass_energy_cvn = 1.0,
+                 biomass_energy_cvn = 1.0,
                  fungus_biomass_death_threshold = 5.0, fungus_feed_threshold = 5.0):
         super().__init__()
-        # TODO: can we create a macro that can automate these assignments?
+
         self.num_ants = num_ants
         self.num_plants = num_plants
         self.pheromone_lifespan = pheromone_lifespan
@@ -47,7 +47,6 @@ class LeafcutterAntsFungiMutualismModel(Model):
         self.ant_death_probability = ant_death_probability
         self.initial_fungus_energy = initial_fungus_energy
         self.fungus_decay_rate = fungus_decay_rate
-        self.biomass_offspring_cvn = biomass_offspring_cvn
         self.biomass_energy_cvn = biomass_energy_cvn
         self.energy_per_offspring = energy_per_offspring
         self.fungus_feed_threshold = fungus_feed_threshold

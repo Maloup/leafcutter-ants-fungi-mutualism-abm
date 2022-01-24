@@ -16,10 +16,6 @@ class Nest(Agent):
             self.model.grid.place_agent(agent, self.pos)
 
     def step(self):
-        # TODO: finalize closed form
-        # num_offsprings = int(self.model.biomass_offspring_cvn*self.model.fungus.biomass)
-        # self.ant_birth(num_offsprings)
-        # self.model.fungus.biomass -= num_offsprings
         offspring_count = int(self.energy_buffer / self.model.energy_per_offspring)
         self.energy_buffer -= offspring_count * self.model.energy_per_offspring
         self.ant_birth(offspring_count)
