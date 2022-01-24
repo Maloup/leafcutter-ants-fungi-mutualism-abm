@@ -35,7 +35,6 @@ class LeafcutterAntsFungiMutualismModel(Model):
                  initial_foragers_ratio=0.5,
                  leaf_regrowth_rate=1/2, ant_death_probability=0.01,
                  initial_fungus_energy=50, fungus_decay_rate=1/50,
-                 # TODO: choose sensible defaults
                  energy_biomass_cvn=2.0, fungus_larvae_cvn=0.9, energy_per_offspring=1.0,
                  fungus_biomass_death_threshold=5.0, fungus_feed_threshold=5.0):
         super().__init__()
@@ -110,6 +109,7 @@ class LeafcutterAntsFungiMutualismModel(Model):
             agent = AntAgent(self.next_id(), self)
             self.schedule.add(agent)
             self.grid.place_agent(agent, self.nest.pos)
+
         for i in range(self.num_ants - foragers_count):
             agent = AntAgent(self.next_id(), self,
                              state=AntWorkerState.CARETAKING)
