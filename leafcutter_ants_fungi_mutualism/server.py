@@ -116,7 +116,9 @@ model_kwargs = {
     "initial_foragers_ratio": UserSettableParameter(
         "slider", "Initial Foragers Ratio", 0.5, 0, 1, 0.01
     ),
-
+    "max_fitness_queue_size": UserSettableParameter(
+        "slider", "Moran process queue length", 20, 1, 100, 1
+    ),
     "width": 50,
     "height": 50
 }

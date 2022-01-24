@@ -19,6 +19,7 @@ def track_ants(model):
     return sum(1 for agent in model.schedule.agents
                if isinstance(agent, AntAgent))
 
+
 def track_proportion_FC(model):
     n_ants = 0
     n_caretakers = 0
@@ -28,7 +29,7 @@ def track_proportion_FC(model):
             if agent.state is AntWorkerState.CARETAKING:
                 n_caretakers += 1
     n_foragers = n_ants - n_caretakers
-    return n_foragers/n_caretakers 
+    return n_foragers/n_caretakers
 
 
 class LeafcutterAntsFungiMutualismModel(Model):
@@ -48,7 +49,8 @@ class LeafcutterAntsFungiMutualismModel(Model):
                  leaf_regrowth_rate=1/2, ant_death_probability=0.01,
                  initial_fungus_energy=50, fungus_decay_rate=1/50,
                  energy_biomass_cvn=2.0, fungus_larvae_cvn=0.9, energy_per_offspring=1.0,
-                 fungus_biomass_death_threshold=5.0, fungus_feed_threshold=5.0, max_fitness_queue_size = 20):
+                 fungus_biomass_death_threshold=5.0, fungus_feed_threshold=5.0,
+                 max_fitness_queue_size=20):
         super().__init__()
 
         self.num_ants = num_ants

@@ -1,4 +1,4 @@
-from .biased_random_walker_agent import BiasedRandomWalkerAgent
+from .random_walker_agent import BiasedRandomWalkerAgent
 from .plant import Plant
 from .pheromone import Pheromone
 from .util import manhattan_distance
@@ -22,7 +22,7 @@ class AntAgent(BiasedRandomWalkerAgent):
         self.state = state
         self.has_leaf = False
         self.neighbor_density_acc = 0
-        self.trip_duration = 0 
+        self.trip_duration = 0
 
     def step(self):
         # mortality
@@ -212,7 +212,7 @@ class AntAgent(BiasedRandomWalkerAgent):
 
     def returned_to_nest(self):
         interaction_prob = self.neighbor_density_acc / self.trip_duration
-        #add fitness to fitness_queue
+        # add fitness to fitness_queue
         fitness = 1 - interaction_prob
 
         try:
@@ -221,32 +221,36 @@ class AntAgent(BiasedRandomWalkerAgent):
             self.model.nest.fitness_queue.get()
             self.model.nest.fitness_queue.put_nowait(fitness)
 
-        #Drafting a random caretaker
+        # Drafting a random caretaker
         if self.random.random() <= (1 - interaction_prob):
             nest_content = self.model.grid.iter_cell_list_contents(self.pos)
-            caretakers = list(filter(lambda a: isinstance(a, AntAgent) and a.state is AntWorkerState.CARETAKING, nest_content))
+            caretakers = list(filter(
+                lambda a: isinstance(a, AntAgent) and a.state is AntWorkerState.CARETAKING,
+                nest_content
+            ))
             if caretakers:
                 drafted_caretaker = self.random.choice(caretakers)
                 drafted_caretaker.state = AntWorkerState.EXPLORE
 
-        #Switching roles with certain probability
+        # Switching roles with certain probability
         if self.random.random() <= interaction_prob:
             self.state = AntWorkerState.CARETAKING
-        else: 
+        else:
             self.state = AntWorkerState.EXPLORE
-        
+
         self.reset_trip()
 
     def get_neighborhood_density(self):
         neighbor_cells = self.model.grid.get_neighborhood(
             self.pos, moore=True, include_center=True)
-        
+
         count = 0
         for cell in neighbor_cells:
             for agent in self.model.grid.iter_cell_list_contents(cell):
                 if isinstance(agent, AntAgent) and self.unique_id != agent.unique_id:
                     count += 1
                     break
+
         neighbor_density = count/9
         return neighbor_density
 
