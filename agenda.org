@@ -8,18 +8,16 @@
    - [X] replace fungi[0] with fungus everywhere
    - [X] parameterize death biomass threshold
    - [ ] Refine fungus feed threshold initial value
-** Nest [6/8]
+** Nest [7/8]
    - [X] Add energy buffer
    - [X] initial distribution of foragers and caretakers
-   - [ ] Finalize energy -> offspring closed form
+   - [X] Finalize energy -> offspring closed form
    - [X] Implement caretakers
    - [X] Implement biomass -> energy conversion via caretaker
    - [X] Implement energy -> offspring conversion via buffer
-     - Uncomment code
    - [X] Change nest_pos to nest.pos
-   - [ ] Optional / low-priority
-     - [ ] New ants can also be initialized as caretakers
-     - [ ] [Performance] collapse caretaking step into single function call
+   - [ ] Performance
+     - [ ] collapse caretaking step into single function call
 ** Ants [1/2]
    - [X] Add caretaking state to enum
    - [ ] Track number of caretakers in nest

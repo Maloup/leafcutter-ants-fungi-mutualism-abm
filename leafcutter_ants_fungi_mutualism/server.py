@@ -119,7 +119,8 @@ model_kwargs = {
 
 server = ModularServer(
     LeafcutterAntsFungiMutualismModel,
-    [canvas_element, fungus_biomass_element, ants_biomass_element, ant_leaves_element],
+    [canvas_element, fungus_biomass_element,
+        ants_biomass_element, ant_leaves_element],
     "LeafcutterAntsFungiMutualism",
     model_kwargs,
 )

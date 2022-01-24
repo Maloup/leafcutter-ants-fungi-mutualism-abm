@@ -19,10 +19,10 @@ class Nest(Agent):
         if (self.model.fungus.biomass > self.model.fungus_biomass_death_threshold + 2 * self.model.energy_per_offspring):
             self.model.fungus.biomass -= 1.0
             # `fungus_larvae_cvn` defaults to 1.0
-            self.energy_buffer += self.model.fungus_larvae_cvn #* 1.0
+            self.energy_buffer += self.model.fungus_larvae_cvn  # * 1.0
 
     def step(self):
-        offspring_count = int(self.energy_buffer / self.model.energy_per_offspring)
+        offspring_count = int(self.energy_buffer /
+                              self.model.energy_per_offspring)
         self.energy_buffer -= offspring_count * self.model.energy_per_offspring
         self.ant_birth(offspring_count)
-

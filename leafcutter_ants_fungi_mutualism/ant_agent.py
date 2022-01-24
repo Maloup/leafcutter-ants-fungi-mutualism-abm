@@ -15,7 +15,7 @@ class AntWorkerState(Enum):
 
 
 class AntAgent(BiasedRandomWalkerAgent):
-    def __init__(self, unique_id, model, state = AntWorkerState.EXPLORE):
+    def __init__(self, unique_id, model, state=AntWorkerState.EXPLORE):
         self.unique_id = unique_id
         super().__init__(unique_id, model)
         self.state = state
@@ -126,9 +126,11 @@ class AntAgent(BiasedRandomWalkerAgent):
                 self.state = AntWorkerState.EXPLORE
                 return
 
-            ant_dist_from_nest = manhattan_distance(self.pos, self.model.nest.pos)
+            ant_dist_from_nest = manhattan_distance(
+                self.pos, self.model.nest.pos)
             pheromones_dist_change = np.array([
-                manhattan_distance(p.pos, self.model.nest.pos) - ant_dist_from_nest
+                manhattan_distance(
+                    p.pos, self.model.nest.pos) - ant_dist_from_nest
                 for p in nearby_pheromones
             ])
             if np.all(pheromones_dist_change <= 0):
@@ -138,7 +140,8 @@ class AntAgent(BiasedRandomWalkerAgent):
                 return
 
             # choose random outwards going pheromone
-            outwards_pheromones = np.argwhere(pheromones_dist_change > 0).flatten()
+            outwards_pheromones = np.argwhere(
+                pheromones_dist_change > 0).flatten()
             rand_outwards = self.random.choice(outwards_pheromones)
             outwards_pheromone = nearby_pheromones[rand_outwards]
             self.model.grid.move_agent(self, outwards_pheromone.pos)
@@ -155,7 +158,7 @@ class AntAgent(BiasedRandomWalkerAgent):
         if not self.model.fungus.dead:
             self.model.nest.feed_larvae()
         else:
-            pass # TODO: maybe task-switching can be implemented here?
+            pass  # TODO: maybe task-switching can be implemented here?
 
     def put_pheromone(self):
         """
