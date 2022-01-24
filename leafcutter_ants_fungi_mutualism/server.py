@@ -3,7 +3,8 @@ Configure visualization elements and instantiate a server
 """
 
 from .model import (
-    LeafcutterAntsFungiMutualismModel, AntAgent, Plant, Nest, Fungus
+    LeafcutterAntsFungiMutualismModel, AntAgent, Plant, Nest, Fungus,
+    AntWorkerState
 )
 from .pheromone import Pheromone
 
@@ -17,6 +18,9 @@ def circle_portrayal_example(agent):
         return
 
     if isinstance(agent, AntAgent):
+        if agent.state is AntWorkerState.CARETAKING:
+            return
+
         portrayal = {
             "Shape": "circle",  # "leafcutter_ants_fungi_mutualism/resources/ant.png"
             "Color": "brown",
