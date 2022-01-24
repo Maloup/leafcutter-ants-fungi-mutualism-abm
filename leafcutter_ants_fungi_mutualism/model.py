@@ -32,10 +32,10 @@ class LeafcutterAntsFungiMutualismModel(Model):
 
     def __init__(self, num_ants=50, num_plants=30, width=20, height=50,
                  pheromone_lifespan=30, num_plant_leaves=100,
-                 initial_foragers_ratio = 0.5, energy_per_offspring = 1.0,
+                 initial_foragers_ratio = 0.5, 
                  leaf_regrowth_rate=1/2, ant_death_probability=0.01,
                  initial_fungus_energy=50, fungus_decay_rate=1/50,
-                 biomass_energy_cvn = 1.0,
+                 energy_biomass_cvn = 1.0, fungus_larvae_cvn = 1.0, energy_per_offspring = 1.0, # TODO: choose sensible defaults
                  fungus_biomass_death_threshold = 5.0, fungus_feed_threshold = 5.0):
         super().__init__()
 
@@ -47,7 +47,7 @@ class LeafcutterAntsFungiMutualismModel(Model):
         self.ant_death_probability = ant_death_probability
         self.initial_fungus_energy = initial_fungus_energy
         self.fungus_decay_rate = fungus_decay_rate
-        self.biomass_energy_cvn = biomass_energy_cvn
+        self.fungus_larvae_cvn = fungus_larvae_cvn
         self.energy_per_offspring = energy_per_offspring
         self.fungus_feed_threshold = fungus_feed_threshold
         self.fungus_biomass_death_threshold = fungus_biomass_death_threshold
@@ -127,8 +127,8 @@ class LeafcutterAntsFungiMutualismModel(Model):
         # unless there are race conditions.
         if (self.fungus.biomass > 1.0):
             self.fungus.biomass -= 1.0
-            # `biomass_energy_cvn` defaults to 1.0
-            self.nest.energy_buffer += self.biomass_energy_cvn * 1.0
+            # `fungus_larvae_cvn` defaults to 1.0
+            self.nest.energy_buffer += self.fungus_larvae_cvn * 1.0
 
 
     def step(self):
