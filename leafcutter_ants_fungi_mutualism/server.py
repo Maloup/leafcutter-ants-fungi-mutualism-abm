@@ -98,6 +98,9 @@ ant_leaves_element = ChartModule([{
 
 model_kwargs = {
     "num_ants": UserSettableParameter("slider", "Number of ants", 50, 1, 200, 1),
+    "initial_foragers_ratio": UserSettableParameter(
+        "slider", "Initial Foragers Ratio", 0.5, 0, 1, 0.01
+    ),
     "num_plants": UserSettableParameter("slider", "Number of plants", 30, 1, 100, 1),
     "num_plant_leaves": UserSettableParameter(
         "slider", "Number of leaves on plant", 100, 1, 500, 1
@@ -115,10 +118,7 @@ model_kwargs = {
         "slider", "Initial fungus energy", 50, 1, 200, 1
     ),
     "fungus_decay_rate": UserSettableParameter(
-        "slider", "Fungus decay rate", 1/50, 0, 1, 0.01
-    ),
-    "initial_foragers_ratio": UserSettableParameter(
-        "slider", "Initial Foragers Ratio", 0.5, 0, 1, 0.01
+        "slider", "Fungus decay rate", 0.005, 0, 0.2, 0.001
     ),
     "max_fitness_queue_size": UserSettableParameter(
         "slider", "Moran process queue length", 20, 1, 100, 1
