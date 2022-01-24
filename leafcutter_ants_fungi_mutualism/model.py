@@ -2,7 +2,6 @@ from mesa import Agent, Model
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
 from mesa.datacollection import DataCollector
-from sklearn.metrics import nan_euclidean_distances
 
 from .ant_agent import AntAgent, AntWorkerState
 from .plant import Plant
@@ -47,7 +46,7 @@ class LeafcutterAntsFungiMutualismModel(Model):
                  pheromone_lifespan=30, num_plant_leaves=100,
                  initial_foragers_ratio=0.5,
                  leaf_regrowth_rate=1/2, ant_death_probability=0.01,
-                 initial_fungus_energy=50, fungus_decay_rate=1/50,
+                 initial_fungus_energy=50, fungus_decay_rate=0.005,
                  energy_biomass_cvn=2.0, fungus_larvae_cvn=0.9, energy_per_offspring=1.0,
                  fungus_biomass_death_threshold=5.0, fungus_feed_threshold=5.0,
                  max_fitness_queue_size=20):
