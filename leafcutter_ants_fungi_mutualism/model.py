@@ -2,6 +2,7 @@ from mesa import Agent, Model
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
 from mesa.datacollection import DataCollector
+from sklearn.metrics import nan_euclidean_distances
 
 from .ant_agent import AntAgent, AntWorkerState
 from .plant import Plant
@@ -17,6 +18,17 @@ def track_leaves(model):
 def track_ants(model):
     return sum(1 for agent in model.schedule.agents
                if isinstance(agent, AntAgent))
+
+def track_proportion_FC(model):
+    n_ants = 0
+    n_caretakers = 0
+    for agent in model.schedule.agents:
+        if isinstance(agent, AntAgent):
+            n_ants += 1
+            if agent.state is AntWorkerState.CARETAKING:
+                n_caretakers += 1
+    n_foragers = n_ants - n_caretakers
+    return n_foragers/n_caretakers 
 
 
 class LeafcutterAntsFungiMutualismModel(Model):
@@ -36,7 +48,7 @@ class LeafcutterAntsFungiMutualismModel(Model):
                  leaf_regrowth_rate=1/2, ant_death_probability=0.01,
                  initial_fungus_energy=50, fungus_decay_rate=1/50,
                  energy_biomass_cvn=2.0, fungus_larvae_cvn=0.9, energy_per_offspring=1.0,
-                 fungus_biomass_death_threshold=5.0, fungus_feed_threshold=5.0):
+                 fungus_biomass_death_threshold=5.0, fungus_feed_threshold=5.0, max_fitness_queue_size = 20):
         super().__init__()
 
         self.num_ants = num_ants
@@ -52,6 +64,7 @@ class LeafcutterAntsFungiMutualismModel(Model):
         self.energy_per_offspring = energy_per_offspring
         self.fungus_feed_threshold = fungus_feed_threshold
         self.fungus_biomass_death_threshold = fungus_biomass_death_threshold
+        self.max_fitness_queue_size = max_fitness_queue_size
 
         self.schedule = RandomActivation(self)
         self.grid = MultiGrid(width=width, height=height, torus=False)
@@ -67,6 +80,7 @@ class LeafcutterAntsFungiMutualismModel(Model):
                 "Fungus Biomass": lambda model: model.fungus.biomass,
                 "Ant Biomass": track_ants,
                 "Ants with Leaves": track_leaves,
+                "Proportion F/C": track_proportion_FC,
             }
         )
 

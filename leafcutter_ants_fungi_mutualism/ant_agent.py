@@ -4,6 +4,7 @@ from .pheromone import Pheromone
 from .util import manhattan_distance
 
 import numpy as np
+import queue
 from enum import Enum, auto
 
 
@@ -20,6 +21,8 @@ class AntAgent(BiasedRandomWalkerAgent):
         super().__init__(unique_id, model)
         self.state = state
         self.has_leaf = False
+        self.neighbor_density_acc = 0
+        self.trip_duration = 0 
 
     def step(self):
         # mortality
@@ -37,6 +40,10 @@ class AntAgent(BiasedRandomWalkerAgent):
             self.harvest_step()
         elif self.state is AntWorkerState.CARETAKING:
             self.caretaking_step()
+
+        if self.state is not AntWorkerState.CARETAKING:
+            self.neighbor_density_acc += self.get_neighborhood_density()
+            self.trip_duration += 1
 
     def explore_step(self):
         """
@@ -71,7 +78,7 @@ class AntAgent(BiasedRandomWalkerAgent):
         if self.model.on_nest(self):
             # found nest, task of laying pheromone trail complete, return to
             # explore state
-            self.state = AntWorkerState.EXPLORE
+            self.returned_to_nest()
             return
 
         # leave pheromone on current location
@@ -97,7 +104,7 @@ class AntAgent(BiasedRandomWalkerAgent):
                 # transfer leaf to fungus
                 self.model.fungus.feed()
                 self.has_leaf = False
-                self.state = AntWorkerState.EXPLORE
+                self.returned_to_nest()
                 return
 
             # Long distance foraging routs are repeatedly re-marked by ants
@@ -202,3 +209,47 @@ class AntAgent(BiasedRandomWalkerAgent):
                 nearby_pheromones.append(p)
 
         return nearby_plants, nearby_pheromones
+
+    def returned_to_nest(self):
+        interaction_prob = self.neighbor_density_acc / self.trip_duration
+        #add fitness to fitness_queue
+        fitness = 1 - interaction_prob
+
+        try:
+            self.model.nest.fitness_queue.put_nowait(fitness)
+        except queue.Full:
+            self.model.nest.fitness_queue.get()
+            self.model.nest.fitness_queue.put_nowait(fitness)
+
+        #Drafting a random caretaker
+        if self.random.random() <= (1 - interaction_prob):
+            nest_content = self.model.grid.iter_cell_list_contents(self.pos)
+            caretakers = list(filter(lambda a: isinstance(a, AntAgent) and a.state is AntWorkerState.CARETAKING, nest_content))
+            if caretakers:
+                drafted_caretaker = self.random.choice(caretakers)
+                drafted_caretaker.state = AntWorkerState.EXPLORE
+
+        #Switching roles with certain probability
+        if self.random.random() <= interaction_prob:
+            self.state = AntWorkerState.CARETAKING
+        else: 
+            self.state = AntWorkerState.EXPLORE
+        
+        self.reset_trip()
+
+    def get_neighborhood_density(self):
+        neighbor_cells = self.model.grid.get_neighborhood(
+            self.pos, moore=True, include_center=True)
+        
+        count = 0
+        for cell in neighbor_cells:
+            for agent in self.model.grid.iter_cell_list_contents(cell):
+                if isinstance(agent, AntAgent) and self.unique_id != agent.unique_id:
+                    count += 1
+                    break
+        neighbor_density = count/9
+        return neighbor_density
+
+    def reset_trip(self):
+        self.neighbor_density_acc = 0
+        self.trip_duration = 0

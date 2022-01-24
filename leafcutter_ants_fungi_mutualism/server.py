@@ -83,6 +83,10 @@ ants_biomass_element = ChartModule([{
     "Label": "Ant Biomass",
     "Color": "brown"
 }], data_collector_name="datacollector")
+ants_proportion_element = ChartModule([{
+    "Label": "Proportion F/C",
+    "Color": "red"
+}], data_collector_name="datacollector")
 ant_leaves_element = ChartModule([{
     "Label": "Ants with Leaves",
     "Color": "green"
@@ -120,7 +124,7 @@ model_kwargs = {
 server = ModularServer(
     LeafcutterAntsFungiMutualismModel,
     [canvas_element, fungus_biomass_element,
-        ants_biomass_element, ant_leaves_element],
+        ants_biomass_element, ants_proportion_element, ant_leaves_element],
     "LeafcutterAntsFungiMutualism",
     model_kwargs,
 )
