@@ -28,6 +28,7 @@ class BiasedRandomWalkerAgent(RandomWalkerAgent):
         if self.prev_pos is None:
             # random walk for first step
             super().random_move()
+            self.prev_pos = self.pos
         else:
             # biased random move
             neighbors = self.model.grid.get_neighborhood(self.pos, moore=True)
