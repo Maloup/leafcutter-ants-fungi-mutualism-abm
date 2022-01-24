@@ -3,8 +3,7 @@ from mesa.time import RandomActivation
 from mesa.space import MultiGrid
 from mesa.datacollection import DataCollector
 
-from .ant_agent import AntAgent
-from .ant_agent import AntWorkerState
+from .ant_agent import AntAgent, AntWorkerState
 from .plant import Plant
 from .nest import Nest
 from .fungus import Fungus
