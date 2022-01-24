@@ -14,11 +14,13 @@ class Fungus(Agent):
 
     def step(self):
         if not self.dead:
-            self.biomass -= self.model.fungus_decay_rate*self.biomass
+            # natural decay
+            self.biomass -= self.model.fungus_decay_rate * self.biomass
 
-            # TODO: parameterize biomass death threshold
-            if self.biomass <= 5:
+            # check for death
+            if self.biomass <= self.model.fungus_biomass_death_threshold:
                 self.dead = True
             elif self.energy > 0:
-                self.biomass += self.energy
+                # convert energy storage to biomass
+                self.biomass += self.model.energy_biomass_cvn * self.energy
                 self.energy = 0

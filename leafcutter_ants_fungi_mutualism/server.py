@@ -83,6 +83,10 @@ ants_biomass_element = ChartModule([{
     "Label": "Ant Biomass",
     "Color": "brown"
 }], data_collector_name="datacollector")
+ants_proportion_element = ChartModule([{
+    "Label": "Fraction forager ants",
+    "Color": "red"
+}], data_collector_name="datacollector")
 ant_leaves_element = ChartModule([{
     "Label": "Ants with Leaves",
     "Color": "green"
@@ -109,13 +113,20 @@ model_kwargs = {
     "fungus_decay_rate": UserSettableParameter(
         "slider", "Fungus decay rate", 1/50, 0, 1, 0.01
     ),
+    "initial_foragers_ratio": UserSettableParameter(
+        "slider", "Initial Foragers Ratio", 0.5, 0, 1, 0.01
+    ),
+    "max_fitness_queue_size": UserSettableParameter(
+        "slider", "Moran process queue length", 20, 1, 100, 1
+    ),
     "width": 50,
     "height": 50
 }
 
 server = ModularServer(
     LeafcutterAntsFungiMutualismModel,
-    [canvas_element, fungus_biomass_element, ants_biomass_element, ant_leaves_element],
+    [canvas_element, fungus_biomass_element,
+        ants_biomass_element, ants_proportion_element, ant_leaves_element],
     "LeafcutterAntsFungiMutualism",
     model_kwargs,
 )

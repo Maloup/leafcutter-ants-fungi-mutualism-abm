@@ -1,9 +1,10 @@
-from .biased_random_walker_agent import BiasedRandomWalkerAgent
+from .random_walker_agent import BiasedRandomWalkerAgent
 from .plant import Plant
 from .pheromone import Pheromone
 from .util import manhattan_distance
 
 import numpy as np
+import queue
 from enum import Enum, auto
 
 
@@ -11,28 +12,38 @@ class AntWorkerState(Enum):
     EXPLORE = auto()
     RECRUIT = auto()
     HARVEST = auto()
+    CARETAKING = auto()
 
 
 class AntAgent(BiasedRandomWalkerAgent):
-    def __init__(self, unique_id, model):
+    def __init__(self, unique_id, model, state=AntWorkerState.EXPLORE):
         self.unique_id = unique_id
         super().__init__(unique_id, model)
-
-        self.state = AntWorkerState.EXPLORE
+        self.state = state
         self.has_leaf = False
+        self.neighbor_density_acc = 0
+        self.trip_duration = 0
 
     def step(self):
+        # mortality
         if self.random.random() <= self.model.ant_death_probability:
             self.model.grid._remove_agent(self.pos, self)
             self.model.schedule.remove(self)
             return
 
-        if self.state == AntWorkerState.EXPLORE:
+        # be nice if Python had pattern matching with enums
+        if self.state is AntWorkerState.EXPLORE:
             self.explore_step()
-        elif self.state == AntWorkerState.RECRUIT:
+        elif self.state is AntWorkerState.RECRUIT:
             self.recruit_step()
-        elif self.state == AntWorkerState.HARVEST:
+        elif self.state is AntWorkerState.HARVEST:
             self.harvest_step()
+        elif self.state is AntWorkerState.CARETAKING:
+            self.caretaking_step()
+
+        if self.state is not AntWorkerState.CARETAKING:
+            self.neighbor_density_acc += self.get_neighborhood_density()
+            self.trip_duration += 1
 
     def explore_step(self):
         """
@@ -67,7 +78,7 @@ class AntAgent(BiasedRandomWalkerAgent):
         if self.model.on_nest(self):
             # found nest, task of laying pheromone trail complete, return to
             # explore state
-            self.state = AntWorkerState.EXPLORE
+            self.returned_to_nest()
             return
 
         # leave pheromone on current location
@@ -90,10 +101,10 @@ class AntAgent(BiasedRandomWalkerAgent):
             if self.model.on_nest(self):
                 # found nest, feed fungus
                 # TODO: now assumes we have just a single fungus, decide on how
-                #   to handle fungi
-                self.model.fungi[0].feed()
+                # transfer leaf to fungus
+                self.model.fungus.feed()
                 self.has_leaf = False
-                self.state = AntWorkerState.EXPLORE
+                self.returned_to_nest()
                 return
 
             # Long distance foraging routs are repeatedly re-marked by ants
@@ -122,9 +133,11 @@ class AntAgent(BiasedRandomWalkerAgent):
                 self.state = AntWorkerState.EXPLORE
                 return
 
-            ant_dist_from_nest = manhattan_distance(self.pos, self.model.nest_pos)
+            ant_dist_from_nest = manhattan_distance(
+                self.pos, self.model.nest.pos)
             pheromones_dist_change = np.array([
-                manhattan_distance(p.pos, self.model.nest_pos) - ant_dist_from_nest
+                manhattan_distance(
+                    p.pos, self.model.nest.pos) - ant_dist_from_nest
                 for p in nearby_pheromones
             ])
             if np.all(pheromones_dist_change <= 0):
@@ -134,10 +147,25 @@ class AntAgent(BiasedRandomWalkerAgent):
                 return
 
             # choose random outwards going pheromone
-            outwards_pheromones = np.argwhere(pheromones_dist_change > 0).flatten()
+            outwards_pheromones = np.argwhere(
+                pheromones_dist_change > 0).flatten()
             rand_outwards = self.random.choice(outwards_pheromones)
             outwards_pheromone = nearby_pheromones[rand_outwards]
             self.model.grid.move_agent(self, outwards_pheromone.pos)
+
+    def caretaking_step(self):
+        """
+        If enough fungus is available, then feed one unit to larvae
+        (decrement `fungus.biomass`, increment `nest.energy_buffer``).
+        """
+        # TODO: we can also track the number of caretakers in the model
+        #   and perform the feeding step in one function call instead of
+        #   individually for every caretaker ant. This can be considered once
+        #   we have task allocation/switching up and running.
+        if not self.model.fungus.dead:
+            self.model.nest.feed_larvae()
+        else:
+            pass  # TODO: maybe task-switching can be implemented here?
 
     def put_pheromone(self):
         """
@@ -160,7 +188,7 @@ class AntAgent(BiasedRandomWalkerAgent):
         first element corresponding to the x direction and the second element
         corresponding to the y direction. Directions are in {-1, 0, 1}.
         """
-        nest_x, nest_y = self.model.nest_pos
+        nest_x, nest_y = self.model.nest.pos
         self_x, self_y = self.pos
 
         angle = np.arctan2(nest_x - self_x, nest_y - self_y)
@@ -181,3 +209,51 @@ class AntAgent(BiasedRandomWalkerAgent):
                 nearby_pheromones.append(p)
 
         return nearby_plants, nearby_pheromones
+
+    def returned_to_nest(self):
+        interaction_prob = self.neighbor_density_acc / self.trip_duration
+        # add fitness to fitness_queue
+        fitness = 1 - interaction_prob
+
+        try:
+            self.model.nest.fitness_queue.put_nowait(fitness)
+        except queue.Full:
+            self.model.nest.fitness_queue.get()
+            self.model.nest.fitness_queue.put_nowait(fitness)
+
+        # Drafting a random caretaker
+        if self.random.random() <= (1 - interaction_prob):
+            nest_content = self.model.grid.iter_cell_list_contents(self.pos)
+            caretakers = list(filter(
+                lambda a: isinstance(a, AntAgent) and a.state is AntWorkerState.CARETAKING,
+                nest_content
+            ))
+            if caretakers:
+                drafted_caretaker = self.random.choice(caretakers)
+                drafted_caretaker.state = AntWorkerState.EXPLORE
+
+        # Switching roles with certain probability
+        if self.random.random() <= interaction_prob:
+            self.state = AntWorkerState.CARETAKING
+        else:
+            self.state = AntWorkerState.EXPLORE
+
+        self.reset_trip()
+
+    def get_neighborhood_density(self):
+        neighbor_cells = self.model.grid.get_neighborhood(
+            self.pos, moore=True, include_center=True)
+
+        count = 0
+        for cell in neighbor_cells:
+            for agent in self.model.grid.iter_cell_list_contents(cell):
+                if isinstance(agent, AntAgent) and self.unique_id != agent.unique_id:
+                    count += 1
+                    break
+
+        neighbor_density = count/9
+        return neighbor_density
+
+    def reset_trip(self):
+        self.neighbor_density_acc = 0
+        self.trip_duration = 0
