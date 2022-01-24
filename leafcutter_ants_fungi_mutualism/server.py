@@ -84,7 +84,7 @@ ants_biomass_element = ChartModule([{
     "Color": "brown"
 }], data_collector_name="datacollector")
 ants_proportion_element = ChartModule([{
-    "Label": "Proportion F/C",
+    "Label": "Fraction forager ants",
     "Color": "red"
 }], data_collector_name="datacollector")
 ant_leaves_element = ChartModule([{

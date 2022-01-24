@@ -18,11 +18,12 @@ class Nest(Agent):
 
         for _ in range(n):
             agent = AntAgent(self.model.next_id(), self.model)
-            self.model.schedule.add(agent)
-            self.model.grid.place_agent(agent, self.pos)
 
             if self.random.random() > average_fitness:
                 agent.state = AntWorkerState.CARETAKING
+
+            self.model.schedule.add(agent)
+            self.model.grid.place_agent(agent, self.pos)
 
     def feed_larvae(self):
         if self.model.fungus.biomass > self.model.fungus_biomass_death_threshold + 2 * self.model.energy_per_offspring:

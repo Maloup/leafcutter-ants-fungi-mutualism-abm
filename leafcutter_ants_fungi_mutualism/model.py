@@ -20,16 +20,16 @@ def track_ants(model):
                if isinstance(agent, AntAgent))
 
 
-def track_proportion_FC(model):
+def track_ratio_foragers(model):
     n_ants = 0
-    n_caretakers = 0
+    n_foragers = 0
     for agent in model.schedule.agents:
         if isinstance(agent, AntAgent):
             n_ants += 1
-            if agent.state is AntWorkerState.CARETAKING:
-                n_caretakers += 1
-    n_foragers = n_ants - n_caretakers
-    return n_foragers/n_caretakers
+            if agent.state is not AntWorkerState.CARETAKING:
+                n_foragers += 1
+
+    return n_foragers/n_ants
 
 
 class LeafcutterAntsFungiMutualismModel(Model):
@@ -82,7 +82,7 @@ class LeafcutterAntsFungiMutualismModel(Model):
                 "Fungus Biomass": lambda model: model.fungus.biomass,
                 "Ant Biomass": track_ants,
                 "Ants with Leaves": track_leaves,
-                "Proportion F/C": track_proportion_FC,
+                "Fraction forager ants": track_ratio_foragers,
             }
         )
 
