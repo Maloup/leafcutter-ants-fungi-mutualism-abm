@@ -110,7 +110,7 @@ model_kwargs = {
         "slider", "Fungus decay rate", 1/50, 0, 1, 0.01
     ),
     "initial_foragers_ratio": UserSettableParameter(
-        "slider", "Initial Foragers Ratio", 0.1, 0, 1, 0.01
+        "slider", "Initial Foragers Ratio", 0.5, 0, 1, 0.01
     ),
 
     "width": 50,
