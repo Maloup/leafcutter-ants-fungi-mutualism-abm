@@ -11,7 +11,7 @@ class AntWorkerState(Enum):
     EXPLORE = auto()
     RECRUIT = auto()
     HARVEST = auto()
-    CTAKING = auto()
+    CARETAKING = auto()
 
 
 class AntAgent(BiasedRandomWalkerAgent):
@@ -29,13 +29,13 @@ class AntAgent(BiasedRandomWalkerAgent):
             return
 
         # be nice if Python had pattern matching with enums
-        if self.state == AntWorkerState.EXPLORE:
+        if self.state is AntWorkerState.EXPLORE:
             self.explore_step()
-        elif self.state == AntWorkerState.RECRUIT:
+        elif self.state is AntWorkerState.RECRUIT:
             self.recruit_step()
-        elif self.state == AntWorkerState.HARVEST:
+        elif self.state is AntWorkerState.HARVEST:
             self.harvest_step()
-        elif self.state == AntWorkerState.CTAKING:
+        elif self.state is AntWorkerState.CARETAKING:
             self.caretaking_step()
 
     def explore_step(self):

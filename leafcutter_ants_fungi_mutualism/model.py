@@ -111,7 +111,7 @@ class LeafcutterAntsFungiMutualismModel(Model):
             self.schedule.add(agent)
             self.grid.place_agent(agent, self.nest.pos)
         for i in range(self.num_ants - foragers_count):
-            agent = AntAgent(self.next_id(), self, state = AntWorkerState.CTAKING)
+            agent = AntAgent(self.next_id(), self, state = AntWorkerState.CARETAKING)
             self.schedule.add(agent)
             self.grid.place_agent(agent, self.nest.pos)
 
