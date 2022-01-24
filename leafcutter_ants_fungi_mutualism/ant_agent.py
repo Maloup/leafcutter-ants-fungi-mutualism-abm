@@ -11,28 +11,32 @@ class AntWorkerState(Enum):
     EXPLORE = auto()
     RECRUIT = auto()
     HARVEST = auto()
+    CARETAKING = auto()
 
 
 class AntAgent(BiasedRandomWalkerAgent):
-    def __init__(self, unique_id, model):
+    def __init__(self, unique_id, model, state=AntWorkerState.EXPLORE):
         self.unique_id = unique_id
         super().__init__(unique_id, model)
-
-        self.state = AntWorkerState.EXPLORE
+        self.state = state
         self.has_leaf = False
 
     def step(self):
+        # mortality
         if self.random.random() <= self.model.ant_death_probability:
             self.model.grid._remove_agent(self.pos, self)
             self.model.schedule.remove(self)
             return
 
-        if self.state == AntWorkerState.EXPLORE:
+        # be nice if Python had pattern matching with enums
+        if self.state is AntWorkerState.EXPLORE:
             self.explore_step()
-        elif self.state == AntWorkerState.RECRUIT:
+        elif self.state is AntWorkerState.RECRUIT:
             self.recruit_step()
-        elif self.state == AntWorkerState.HARVEST:
+        elif self.state is AntWorkerState.HARVEST:
             self.harvest_step()
+        elif self.state is AntWorkerState.CARETAKING:
+            self.caretaking_step()
 
     def explore_step(self):
         """
@@ -90,8 +94,8 @@ class AntAgent(BiasedRandomWalkerAgent):
             if self.model.on_nest(self):
                 # found nest, feed fungus
                 # TODO: now assumes we have just a single fungus, decide on how
-                #   to handle fungi
-                self.model.fungi[0].feed()
+                # transfer leaf to fungus
+                self.model.fungus.feed()
                 self.has_leaf = False
                 self.state = AntWorkerState.EXPLORE
                 return
@@ -122,9 +126,11 @@ class AntAgent(BiasedRandomWalkerAgent):
                 self.state = AntWorkerState.EXPLORE
                 return
 
-            ant_dist_from_nest = manhattan_distance(self.pos, self.model.nest_pos)
+            ant_dist_from_nest = manhattan_distance(
+                self.pos, self.model.nest.pos)
             pheromones_dist_change = np.array([
-                manhattan_distance(p.pos, self.model.nest_pos) - ant_dist_from_nest
+                manhattan_distance(
+                    p.pos, self.model.nest.pos) - ant_dist_from_nest
                 for p in nearby_pheromones
             ])
             if np.all(pheromones_dist_change <= 0):
@@ -134,10 +140,25 @@ class AntAgent(BiasedRandomWalkerAgent):
                 return
 
             # choose random outwards going pheromone
-            outwards_pheromones = np.argwhere(pheromones_dist_change > 0).flatten()
+            outwards_pheromones = np.argwhere(
+                pheromones_dist_change > 0).flatten()
             rand_outwards = self.random.choice(outwards_pheromones)
             outwards_pheromone = nearby_pheromones[rand_outwards]
             self.model.grid.move_agent(self, outwards_pheromone.pos)
+
+    def caretaking_step(self):
+        """
+        If enough fungus is available, then feed one unit to larvae
+        (decrement `fungus.biomass`, increment `nest.energy_buffer``).
+        """
+        # TODO: we can also track the number of caretakers in the model
+        #   and perform the feeding step in one function call instead of
+        #   individually for every caretaker ant. This can be considered once
+        #   we have task allocation/switching up and running.
+        if not self.model.fungus.dead:
+            self.model.nest.feed_larvae()
+        else:
+            pass  # TODO: maybe task-switching can be implemented here?
 
     def put_pheromone(self):
         """
@@ -160,7 +181,7 @@ class AntAgent(BiasedRandomWalkerAgent):
         first element corresponding to the x direction and the second element
         corresponding to the y direction. Directions are in {-1, 0, 1}.
         """
-        nest_x, nest_y = self.model.nest_pos
+        nest_x, nest_y = self.model.nest.pos
         self_x, self_y = self.pos
 
         angle = np.arctan2(nest_x - self_x, nest_y - self_y)

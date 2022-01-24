@@ -109,16 +109,18 @@ model_kwargs = {
     "fungus_decay_rate": UserSettableParameter(
         "slider", "Fungus decay rate", 1/50, 0, 1, 0.01
     ),
-    "biomass_offspring_cvn": UserSettableParameter(
-        "slider", "biomass-offspring conversion factor", 0.1, 0, 1, 0.01
+    "initial_foragers_ratio": UserSettableParameter(
+        "slider", "Initial Foragers Ratio", 0.1, 0, 1, 0.01
     ),
+
     "width": 50,
     "height": 50
 }
 
 server = ModularServer(
     LeafcutterAntsFungiMutualismModel,
-    [canvas_element, fungus_biomass_element, ants_biomass_element, ant_leaves_element],
+    [canvas_element, fungus_biomass_element,
+        ants_biomass_element, ant_leaves_element],
     "LeafcutterAntsFungiMutualism",
     model_kwargs,
 )
