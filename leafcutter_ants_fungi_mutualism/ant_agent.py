@@ -82,7 +82,6 @@ class AntAgent(BiasedRandomWalkerAgent):
             return
 
         # leave pheromone on current location
-        # TODO: should this have some extra energy cost?
         self.put_pheromone()
 
         # step towards nest
@@ -96,62 +95,40 @@ class AntAgent(BiasedRandomWalkerAgent):
         the plant. If it arrives at a plant, it will cut a piece of leaf off and
         carry it to the nest to feed the fungus.
         """
-        if self.has_leaf:
-            # return to nest with leaf
-            if self.model.on_nest(self):
-                # found nest, feed fungus
-                # TODO: now assumes we have just a single fungus, decide on how
-                # transfer leaf to fungus
-                self.model.fungus.feed()
-                self.has_leaf = False
-                self.returned_to_nest()
-                return
-
-            # Long distance foraging routs are repeatedly re-marked by ants
-            #   traveling along these trails (Jaffé & Howse 1979)
-            self.put_pheromone()
-
-            x_step, y_step = self.get_direction_towards_nest()
-            self.model.grid.move_agent(
-                self, (self.pos[0] + x_step, self.pos[1] + y_step))
-        else:
-            nearby_plants, nearby_pheromones = self.get_nearby_plants_and_pheromones()
-            if nearby_plants:
-                # found plant, get leaf
-                plant = self.random.choice(nearby_plants)
-                if plant.take_leaf():
-                    self.has_leaf = True
-                else:
-                    # plant's leaves have been exhausted, return to exploring
-                    self.state = AntWorkerState.EXPLORE
-                return
-
-            # follow pheromone trail
-
-            if not nearby_pheromones:
-                # pheromones disappeared
+        nearby_plants, nearby_pheromones = self.get_nearby_plants_and_pheromones()
+        if nearby_plants:
+            # found plant, get leaf
+            plant = self.random.choice(nearby_plants)
+            if plant.take_leaf():
+                self.has_leaf = True
+                self.state = AntWorkerState.RECRUIT
+            else:
+                # plant's leaves have been exhausted, return to exploring
                 self.state = AntWorkerState.EXPLORE
-                return
+            return
 
-            ant_dist_from_nest = manhattan_distance(
-                self.pos, self.model.nest.pos)
-            pheromones_dist_change = np.array([
-                manhattan_distance(
-                    p.pos, self.model.nest.pos) - ant_dist_from_nest
-                for p in nearby_pheromones
-            ])
-            if np.all(pheromones_dist_change <= 0):
-                # no outwards going pheromones near, do explore step
-                self.state = AntWorkerState.EXPLORE
-                self.explore_step()
-                return
+        if not nearby_pheromones:
+            # pheromones disappeared
+            self.state = AntWorkerState.EXPLORE
+            return
 
-            # choose random outwards going pheromone
-            outwards_pheromones = np.argwhere(
-                pheromones_dist_change > 0).flatten()
-            rand_outwards = self.random.choice(outwards_pheromones)
-            outwards_pheromone = nearby_pheromones[rand_outwards]
-            self.model.grid.move_agent(self, outwards_pheromone.pos)
+        # follow pheromone trail outwards from nest
+        ant_dist_from_nest = manhattan_distance(self.pos, self.model.nest.pos)
+        pheromones_dist_change = np.array([
+            manhattan_distance(p.pos, self.model.nest.pos) - ant_dist_from_nest
+            for p in nearby_pheromones
+        ])
+        if np.all(pheromones_dist_change <= 0):
+            # no outwards going pheromones near, do random move
+            self.random_move()
+            self.state = AntWorkerState.EXPLORE
+            return
+
+        # choose random outwards going pheromone
+        outwards_pheromones = np.argwhere(pheromones_dist_change > 0).flatten()
+        rand_outwards = self.random.choice(outwards_pheromones)
+        outwards_pheromone = nearby_pheromones[rand_outwards]
+        self.model.grid.move_agent(self, outwards_pheromone.pos)
 
     def caretaking_step(self):
         """
@@ -211,6 +188,12 @@ class AntAgent(BiasedRandomWalkerAgent):
         return nearby_plants, nearby_pheromones
 
     def returned_to_nest(self):
+        # feed fungus first if we have a leaf
+        if self.has_leaf:
+            self.model.fungus.feed()
+            self.has_leaf = False
+
+        # task division
         interaction_prob = self.neighbor_density_acc / self.trip_duration
         # add fitness to fitness_queue
         fitness = 1 - interaction_prob
