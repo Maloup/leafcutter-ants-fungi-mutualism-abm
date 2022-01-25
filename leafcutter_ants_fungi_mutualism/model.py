@@ -28,7 +28,10 @@ def track_ratio_foragers(model):
             if agent.state is not AntWorkerState.CARETAKING:
                 n_foragers += 1
 
-    return n_foragers/n_ants
+    if n_ants > 0:
+        return n_foragers / n_ants
+    else:
+        return 0.0
 
 
 class LeafcutterAntsFungiMutualismModel(Model):
