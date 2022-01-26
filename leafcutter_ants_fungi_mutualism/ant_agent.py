@@ -1,7 +1,7 @@
 from .random_walker_agent import BiasedRandomWalkerAgent
 from .plant import Plant
 from .pheromone import Pheromone
-from .util import manhattan_distance
+from .util import manhattan_distance, arctan_activation_pstv
 
 import numpy as np
 import queue
@@ -196,9 +196,10 @@ class AntAgent(BiasedRandomWalkerAgent):
             self.has_leaf = False
 
         # task division
-        interaction_prob = self.neighbor_density_acc / self.trip_duration
+        interaction_intensity = self.neighbor_density_acc / self.trip_duration
         # add fitness to fitness_queue
-        fitness = 1 - interaction_prob
+        fitness = 1 - arctan_activation_pstv(interaction_intensity, 0.5)
+        print(fitness)
 
         try:
             self.model.nest.fitness_queue.put_nowait(fitness)
@@ -207,7 +208,7 @@ class AntAgent(BiasedRandomWalkerAgent):
             self.model.nest.fitness_queue.put_nowait(fitness)
 
         # Drafting a random caretaker
-        if self.random.random() <= (1 - interaction_prob):
+        if self.random.random() <= fitness:
             nest_content = self.model.grid.iter_cell_list_contents(self.pos)
             caretakers = list(filter(
                 lambda a: isinstance(a, AntAgent) and a.state is AntWorkerState.CARETAKING,
@@ -218,7 +219,7 @@ class AntAgent(BiasedRandomWalkerAgent):
                 drafted_caretaker.state = AntWorkerState.EXPLORE
 
         # Switching roles with certain probability
-        if self.random.random() <= interaction_prob:
+        if self.random.random() <= interaction_intensity:
             self.state = AntWorkerState.CARETAKING
         else:
             self.state = AntWorkerState.EXPLORE
@@ -232,12 +233,12 @@ class AntAgent(BiasedRandomWalkerAgent):
         count = 0
         for cell in neighbor_cells:
             for agent in self.model.grid.iter_cell_list_contents(cell):
-                if isinstance(agent, AntAgent) and self.unique_id != agent.unique_id:
+                if isinstance(agent, AntAgent) \
+                   and agent.state is not AntWorkerState.CARETAKING \
+                   and self.unique_id != agent.unique_id:
                     count += 1
-                    break
 
-        neighbor_density = count/9
-        return neighbor_density
+        return count
 
     def reset_trip(self):
         self.neighbor_density_acc = 0
