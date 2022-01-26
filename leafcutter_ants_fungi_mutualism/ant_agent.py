@@ -208,7 +208,7 @@ class AntAgent(BiasedRandomWalkerAgent):
         # task division
         interaction_intensity = self.neighbor_density_acc / self.trip_duration
         # add fitness to fitness_queue
-        fitness = 1 - arctan_activation_pstv(interaction_intensity, 0.01)
+        fitness = 1 - arctan_activation_pstv(interaction_intensity, 0.1)
 
         try:
             self.model.nest.forager_fitness_queue.put_nowait(fitness)
