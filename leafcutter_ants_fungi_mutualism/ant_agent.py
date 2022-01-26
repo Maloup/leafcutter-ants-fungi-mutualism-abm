@@ -141,6 +141,12 @@ class AntAgent(BiasedRandomWalkerAgent):
 
         self.roundtrip_length -= 1
         if self.roundtrip_length == 0:
+            try:
+                self.model.nest.fungus_fitness_queue.put_nowait(fitness)
+            except queue.Full:
+                self.model.nest.fungus_fitness_queue.get()
+                self.model.nest.fungus_fitness_queue.put_nowait(fitness)
+
             if not self.model.fungus.dead:
                 self.model.nest.feed_larvae()
 
@@ -198,14 +204,14 @@ class AntAgent(BiasedRandomWalkerAgent):
         # task division
         interaction_intensity = self.neighbor_density_acc / self.trip_duration
         # add fitness to fitness_queue
-        fitness = 1 - arctan_activation_pstv(interaction_intensity, 0.5)
+        fitness = 1 - arctan_activation_pstv(interaction_intensity, 0.01)
         print(fitness)
 
         try:
-            self.model.nest.fitness_queue.put_nowait(fitness)
+            self.model.nest.forager_fitness_queue.put_nowait(fitness)
         except queue.Full:
-            self.model.nest.fitness_queue.get()
-            self.model.nest.fitness_queue.put_nowait(fitness)
+            self.model.nest.forager_fitness_queue.get()
+            self.model.nest.forager_fitness_queue.put_nowait(fitness)
 
         # Drafting a random caretaker
         if self.random.random() <= fitness:
@@ -245,4 +251,5 @@ class AntAgent(BiasedRandomWalkerAgent):
         self.trip_duration = 0
 
     def set_roundtrip_length(self):
+        self.fungus_biomass_start = self.model.fungus.biomass
         self.roundtrip_length = round(np.random.normal(10, 10))

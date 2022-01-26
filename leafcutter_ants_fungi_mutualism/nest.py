@@ -7,14 +7,28 @@ class Nest(Agent):
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
         self.energy_buffer = 0.0
-        self.fitness_queue = queue.Queue(self.model.max_fitness_queue_size)
+        # both queues have the same size at the moment
+        self.forager_fitness_queue = queue.Queue(self.model.max_fitness_queue_size)
+        self.fungus_fitness_queue = queue.Queue(self.model.max_fitness_queue_size)
+
+    def get_fitness_q_lists(self):
+        return list(self.forager_fitness_queue.queue), list(self.fungus_fitness_queue.queue)
+
 
     def ant_birth(self, n):
-        fitness_queue_list = list(self.fitness_queue.queue)
+        forager_fitness_queue_list, fungus_fitness_queue_list = self.get_fitness_q_lists()
         if len(fitness_queue_list) != 0:
-            average_fitness = sum(fitness_queue_list)/len(fitness_queue_list)
+            average_forager_fitness = sum(forager_fitness_queue_list)/len(forager_fitness_queue_list)
         else:
-            average_fitness = 0.5
+            average_forager_fitness = 0.5
+
+        if len(fungus_fitness_queue_list) != 0:
+            average_fungus_fitness = sum(fungus_fitness_queue_list)/len(fungus_fitness_queue_list)
+        else:
+            average_fungus_fitness = 0.5
+
+        forager_fitness_weight
+        average_fitness = forager_fitness_weight * average_forager_fitness + (1-forager_fitness_weight) * average_fungus_fitness
 
         for _ in range(n):
             state = AntWorkerState.EXPLORE
