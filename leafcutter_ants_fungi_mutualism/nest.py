@@ -17,10 +17,12 @@ class Nest(Agent):
             average_fitness = 0.5
 
         for _ in range(n):
-            agent = AntAgent(self.model.next_id(), self.model)
+            state = AntWorkerState.EXPLORE
 
             if self.random.random() > average_fitness:
-                agent.state = AntWorkerState.CARETAKING
+                state = AntWorkerState.CARETAKING
+
+            agent = AntAgent(self.model.next_id(), self.model, state=state)
 
             self.model.schedule.add(agent)
             self.model.grid.place_agent(agent, self.pos)
@@ -29,7 +31,7 @@ class Nest(Agent):
         if self.model.fungus.biomass > self.model.fungus_biomass_death_threshold + 2 * self.model.energy_per_offspring:
             self.model.fungus.biomass -= self.model.caretaker_carrying_amount
             # `fungus_larvae_cvn` defaults to 1.0
-            self.energy_buffer += self.model.fungus_larvae_cvn*self.model.caretaker_carrying_amount 
+            self.energy_buffer += self.model.fungus_larvae_cvn*self.model.caretaker_carrying_amount
 
     def step(self):
         offspring_count = int(self.energy_buffer /

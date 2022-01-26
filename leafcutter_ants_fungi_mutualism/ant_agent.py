@@ -23,6 +23,7 @@ class AntAgent(BiasedRandomWalkerAgent):
         self.has_leaf = False
         self.neighbor_density_acc = 0
         self.trip_duration = 0
+        self.roundtrip_length = None
 
     def step(self):
         # mortality
@@ -135,14 +136,15 @@ class AntAgent(BiasedRandomWalkerAgent):
         If enough fungus is available, then feed one unit to larvae
         (decrement `fungus.biomass`, increment `nest.energy_buffer``).
         """
-        # TODO: we can also track the number of caretakers in the model
-        #   and perform the feeding step in one function call instead of
-        #   individually for every caretaker ant. This can be considered once
-        #   we have task allocation/switching up and running.
-        if not self.model.fungus.dead:
-            self.model.nest.feed_larvae()
-        else:
-            pass  # TODO: maybe task-switching can be implemented here?
+        if self.roundtrip_length is None:
+            self.set_roundtrip_length()
+
+        self.roundtrip_length -= 1
+        if self.roundtrip_length == 0:
+            if not self.model.fungus.dead:
+                self.model.nest.feed_larvae()
+
+            self.set_roundtrip_length()
 
     def put_pheromone(self):
         """
@@ -240,3 +242,6 @@ class AntAgent(BiasedRandomWalkerAgent):
     def reset_trip(self):
         self.neighbor_density_acc = 0
         self.trip_duration = 0
+
+    def set_roundtrip_length(self):
+        self.roundtrip_length = round(np.random.normal(10, 10))
