@@ -123,9 +123,14 @@ model_kwargs = {
     "max_fitness_queue_size": UserSettableParameter(
         "slider", "Moran process queue length", 20, 1, 100, 1
     ),
+    "caretaker_carrying_amount": UserSettableParameter(
+        "slider", "Amount Caretaker carries", 1, 0, 5, 0.1
+    ),
+
     "width": 50,
     "height": 50
 }
+
 
 server = ModularServer(
     LeafcutterAntsFungiMutualismModel,
