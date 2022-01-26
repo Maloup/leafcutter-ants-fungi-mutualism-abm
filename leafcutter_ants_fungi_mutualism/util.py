@@ -8,7 +8,7 @@ def tanh_activation_pstv(x, a):
     return tanh(a*x)
 
 def arctan_activation_pstv(x, a):
-    return arctan(a*x)
+    return (2.0/pi)arctan(a*x)
 
 # activations for the entire real line
 def arctan_activation_real(x, a):
