@@ -52,7 +52,7 @@ class LeafcutterAntsFungiMutualismModel(Model):
                  initial_fungus_energy=50, fungus_decay_rate=0.005,
                  energy_biomass_cvn=2.0, fungus_larvae_cvn=0.9, energy_per_offspring=1.0,
                  fungus_biomass_death_threshold=5.0, fungus_feed_threshold=5.0,
-                 max_fitness_queue_size=20):
+                 caretaker_carrying_amount=1, max_fitness_queue_size=20):
         super().__init__()
 
         self.num_ants = num_ants
@@ -69,6 +69,7 @@ class LeafcutterAntsFungiMutualismModel(Model):
         self.fungus_feed_threshold = fungus_feed_threshold
         self.fungus_biomass_death_threshold = fungus_biomass_death_threshold
         self.max_fitness_queue_size = max_fitness_queue_size
+        self.caretaker_carrying_amount = caretaker_carrying_amount
 
         self.schedule = RandomActivation(self)
         self.grid = MultiGrid(width=width, height=height, torus=False)
