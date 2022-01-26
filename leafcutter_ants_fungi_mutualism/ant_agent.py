@@ -1,7 +1,7 @@
 from .random_walker_agent import BiasedRandomWalkerAgent
 from .plant import Plant
 from .pheromone import Pheromone
-from .util import manhattan_distance, arctan_activation_pstv
+from .util import manhattan_distance, arctan_activation_pstv, arctan_activation_real
 
 import numpy as np
 import queue
@@ -141,6 +141,10 @@ class AntAgent(BiasedRandomWalkerAgent):
 
         self.roundtrip_length -= 1
         if self.roundtrip_length == 0:
+            fitness = 1 - arctan_activation_pstv(
+                self.model.fungus.biomass - self.fungus_biomass_start, 0.5
+            )
+
             try:
                 self.model.nest.fungus_fitness_queue.put_nowait(fitness)
             except queue.Full:
@@ -205,7 +209,6 @@ class AntAgent(BiasedRandomWalkerAgent):
         interaction_intensity = self.neighbor_density_acc / self.trip_duration
         # add fitness to fitness_queue
         fitness = 1 - arctan_activation_pstv(interaction_intensity, 0.01)
-        print(fitness)
 
         try:
             self.model.nest.forager_fitness_queue.put_nowait(fitness)

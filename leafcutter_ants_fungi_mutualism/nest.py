@@ -17,7 +17,7 @@ class Nest(Agent):
 
     def ant_birth(self, n):
         forager_fitness_queue_list, fungus_fitness_queue_list = self.get_fitness_q_lists()
-        if len(fitness_queue_list) != 0:
+        if len(forager_fitness_queue_list) != 0:
             average_forager_fitness = sum(forager_fitness_queue_list)/len(forager_fitness_queue_list)
         else:
             average_forager_fitness = 0.5
@@ -27,8 +27,10 @@ class Nest(Agent):
         else:
             average_fungus_fitness = 0.5
 
-        forager_fitness_weight
-        average_fitness = forager_fitness_weight * average_forager_fitness + (1-forager_fitness_weight) * average_fungus_fitness
+        forager_fitness_weight = 0.5
+        average_fitness = \
+            forager_fitness_weight * average_forager_fitness + \
+            (1 - forager_fitness_weight) * average_fungus_fitness
 
         for _ in range(n):
             state = AntWorkerState.EXPLORE
