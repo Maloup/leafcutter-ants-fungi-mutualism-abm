@@ -1,56 +1,8 @@
-"""
-One-Factor-At-a-Time (OFAT) (local) sensitivity analysis, based on methods provided by the SA notebook and the article of ten Broeke (2016)
-
-Script to run OFAT and save data
-
-"""
-from leafcutter_ants_fungi_mutualism.model import LeafcutterAntsFungiMutualismModel, track_ants, track_leaves, track_ratio_foragers
-from mesa.batchrunner import BatchRunner, BatchRunnerMP
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-import os
-from tqdm import tqdm
-
-if not os.path.exists('Data/OFAT'):
-    os.makedirs('Data/OFAT')
-if not os.path.exists('Figures/OFAT'):
-    os.makedirs('Figures/OFAT')
-
-
-
-def collect_OFAT_data(fileName, problem, model_reporters, fixed_parameters, 
-                      repetitions=5, time_steps=100, distinct_samples=5, 
-                      save_data=True):
-    """
-    Function that collects data for the OFAT sensitivity analysis and save the data
-    when save_data is set to true
-    """
-
-    # create a dictionary where each dataframe is saved as the value of key variable name
-    data = {}
-
-    for var in tqdm(problem.keys()):
-        # get the sample for this variable
-        samples = np.linspace(*problem[var][1], num=distinct_samples, dtype=problem[var][0])
-
-        batch = BatchRunnerMP(LeafcutterAntsFungiMutualismModel, 
-                             max_steps=max_steps,
-                             iterations=repetitions,
-                             variable_parameters={var: samples},
-                             fixed_parameters=fixed_parameters,
-                             model_reporters=model_reporters,
-                             display_progress=False)
-
-        batch.run_all()
-
-        data[var] = batch.get_model_vars_dataframe()
-
-    if save_data:
-        np.savez('Data/OFAT/' + fileName, data)
-
-    return data
+from leafcutter_ants_fungi_mutualism.model import LeafcutterAntsFungiMutualismModel, track_ants, track_leaves, track_ratio_foragers
 
 def plot_param_var_conf(ax, df, var, param, i):
     """
@@ -88,7 +40,7 @@ def plot_param_var_conf(ax, df, var, param, i):
     ax.set_xlabel(var)
     ax.set_ylabel(param)
 
-def plot_all_vars(data, model_reporters, save_fig=False, show_fig=True):
+def plot_all_vars(data, model_reporters, save_fig=True, show_fig=False):
     """
     
     """
@@ -110,17 +62,6 @@ def recover_OFAT_data(fileName):
     Recovers data saved in collect_OFAT_data function
     """
     return dict(np.load('Data/OFAT/' + fileName + '.npz', allow_pickle=True))['arr_0'][()]
-    
-
-# (self, collect_data=True, num_ants=50, num_plants=30, width=20,
-#                  height=50, pheromone_lifespan=30, num_plant_leaves=100,
-#                  initial_foragers_ratio=0.5, leaf_regrowth_rate=1/2,
-#                  ant_death_probability=0.01, initial_fungus_energy=50,
-#                  fungus_decay_rate=0.005, energy_biomass_cvn=2.0,
-#                  fungus_larvae_cvn=0.9, energy_per_offspring=1.0,
-#                  fungus_biomass_death_threshold=5.0, fungus_feed_threshold=5.0,
-#                  caretaker_carrying_amount=1, max_fitness_queue_size=20):
-
 
 
 if __name__ == '__main__':
@@ -153,13 +94,9 @@ if __name__ == '__main__':
 
     fileName = 'SA-experimentation270122'
 
-    repetitions = 8
+    repetitions = 5
     max_steps = 500
-    distinct_samples = 8
-
-    collect_OFAT_data(fileName, problem, model_reporters, fixed_parameters, 
-                      repetitions=repetitions, time_steps=max_steps, distinct_samples=distinct_samples, 
-                      save_data=True)
+    distinct_samples = 5
 
     data = recover_OFAT_data(fileName)
 
