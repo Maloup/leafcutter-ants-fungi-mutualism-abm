@@ -255,4 +255,5 @@ class AntAgent(BiasedRandomWalkerAgent):
 
     def set_roundtrip_length(self):
         self.fungus_biomass_start = self.model.fungus.biomass
-        self.roundtrip_length = round(np.random.normal(10, 10))
+        # clamping from below by 1
+        self.roundtrip_length = max(round(np.random.normal(10, 10)), 1)
