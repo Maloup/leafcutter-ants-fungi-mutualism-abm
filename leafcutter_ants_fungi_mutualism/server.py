@@ -127,6 +127,17 @@ model_kwargs = {
         "slider", "Amount Caretaker carries", 1, 0, 5, 0.1
     ),
 
+    "energy_per_offspring": UserSettableParameter(
+        "slider", "energy_per_offspring", 1, 0, 5, 0.1
+    ),
+
+    "energy_biomass_cvn": UserSettableParameter(
+        "slider", "energy_biomass_cvn", 2, 0, 5, 0.1
+    ),
+
+
+    
+
     "width": 50,
     "height": 50
 }

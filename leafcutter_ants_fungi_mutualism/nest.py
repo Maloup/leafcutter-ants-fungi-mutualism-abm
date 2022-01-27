@@ -15,7 +15,7 @@ class Nest(Agent):
             average_fitness = sum(fitness_queue_list)/len(fitness_queue_list)
         else:
             average_fitness = 0.5
-
+        print(n)
         for _ in range(n):
             agent = AntAgent(self.model.next_id(), self.model)
 
@@ -36,3 +36,6 @@ class Nest(Agent):
                               self.model.energy_per_offspring)
         self.energy_buffer -= offspring_count * self.model.energy_per_offspring
         self.ant_birth(offspring_count)
+
+
+    
