@@ -4,13 +4,19 @@ Configure visualization elements and instantiate a server
 
 from .model import (
     LeafcutterAntsFungiMutualismModel, AntAgent, Plant, Nest, Fungus,
-    AntWorkerState
+    AntWorkerState, track_forager_fitness
 )
 from .pheromone import Pheromone
 
+from mesa.visualization.modules.TextVisualization import TextElement
 from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.modules import CanvasGrid, ChartModule
 from mesa.visualization.UserParam import UserSettableParameter
+
+
+class FitnessElement(TextElement):
+    def render(self, model):
+        return f"Forager fitness: {track_forager_fitness(model):.3f}"
 
 
 def circle_portrayal_example(agent):
@@ -95,6 +101,7 @@ ant_leaves_element = ChartModule([{
     "Label": "Ants with Leaves",
     "Color": "green"
 }], data_collector_name="datacollector")
+fitness_element = FitnessElement()
 
 model_kwargs = {
     "num_ants": UserSettableParameter("slider", "Number of ants", 50, 1, 200, 1),
@@ -134,10 +141,6 @@ model_kwargs = {
     "energy_biomass_cvn": UserSettableParameter(
         "slider", "energy_biomass_cvn", 2, 0, 5, 0.1
     ),
-
-
-    
-
     "width": 50,
     "height": 50
 }
@@ -145,8 +148,8 @@ model_kwargs = {
 
 server = ModularServer(
     LeafcutterAntsFungiMutualismModel,
-    [canvas_element, fungus_biomass_element,
-        ants_biomass_element, ants_proportion_element, ant_leaves_element],
+    [canvas_element, fitness_element, fungus_biomass_element,
+     ants_biomass_element, ants_proportion_element, ant_leaves_element],
     "LeafcutterAntsFungiMutualism",
     model_kwargs,
 )

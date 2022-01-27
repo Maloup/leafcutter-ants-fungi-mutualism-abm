@@ -34,6 +34,14 @@ def track_ratio_foragers(model):
         return 0.0
 
 
+def track_forager_fitness(model):
+    fitness_queue_list = list(model.nest.fitness_queue.queue)
+    if len(fitness_queue_list) != 0:
+        return sum(fitness_queue_list)/len(fitness_queue_list)
+
+    return 0.5
+
+
 class LeafcutterAntsFungiMutualismModel(Model):
     """
     The model class holds the model-level attributes, manages the agents, and generally handles
