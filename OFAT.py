@@ -152,6 +152,7 @@ if __name__ == '__main__':
                'energy_per_offspring': [float, [0.5, 1.5]],
                'max_fitness_queue_size': [int, [1, 20]],
                'caretaker_carrying_amount': [float, [0.1, 2]],
+               'dormant_roundtrip_mean': [float, [30, 80]]
     }
 
     # problem = {'num_ants': [int, [10,100]],
@@ -195,7 +196,11 @@ if __name__ == '__main__':
                          'energy_per_offspring': 1.0,
                          'fungus_biomass_death_threshold': 5,
                          'max_fitness_queue_size': 10,
-                         'caretaker_carrying_amount': 1}
+                         'caretaker_carrying_amount': 1,
+                         'caretaker_roundtrip_mean': 5.0, 
+                         'caretaker_roundtrip_std': 5.0,
+                         'dormant_roundtrip_mean': 60.0,
+    }
 
     # estimation floor comp 2,5h
     repetitions = 10
