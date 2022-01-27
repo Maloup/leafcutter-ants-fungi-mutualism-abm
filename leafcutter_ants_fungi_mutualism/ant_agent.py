@@ -149,7 +149,7 @@ class AntAgent(BiasedRandomWalkerAgent):
 
             #dormancy
             if 0.5 > fitness:
-                self.set_roundtrip_length()
+                self.set_roundtrip_length(mu=20)
 
             #feeding
             else: 
@@ -211,7 +211,6 @@ class AntAgent(BiasedRandomWalkerAgent):
         interaction_prob = self.neighbor_density_acc / self.trip_duration
         # add fitness to fitness_queue
         fitness = 1 - interaction_prob
-        print("Forager fitness:", fitness)
 
         try:
             self.model.nest.fitness_queue.put_nowait(fitness)
@@ -256,6 +255,6 @@ class AntAgent(BiasedRandomWalkerAgent):
         self.neighbor_density_acc = 0
         self.trip_duration = 0
 
-    def set_roundtrip_length(self):
+    def set_roundtrip_length(self, mu=5, sigma=5):
         self.fungus_biomass_start = self.model.fungus.biomass
-        self.roundtrip_length = round(np.random.normal(5, 5))
+        self.roundtrip_length = max(round(np.random.normal(mu, sigma)), 1)
