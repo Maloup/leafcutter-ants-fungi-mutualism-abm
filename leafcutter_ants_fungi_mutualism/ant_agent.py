@@ -25,7 +25,6 @@ class AntAgent(BiasedRandomWalkerAgent):
         self.trip_duration = 0
         self.roundtrip_length = None
 
-
     def step(self):
         # mortality
         if self.random.random() <= self.model.ant_death_probability:
@@ -138,7 +137,8 @@ class AntAgent(BiasedRandomWalkerAgent):
         (decrement `fungus.biomass`, increment `nest.energy_buffer``).
         """
         if self.roundtrip_length is None:
-            self.set_roundtrip_length(mu=self.model.caretaker_roundtrip_mean, sigma=self.model.caretaker_roundtrip_std)
+            self.set_roundtrip_length(
+                mu=self.model.caretaker_roundtrip_mean, sigma=self.model.caretaker_roundtrip_std)
 
         self.roundtrip_length -= 1
         if self.roundtrip_length == 0:
@@ -146,16 +146,18 @@ class AntAgent(BiasedRandomWalkerAgent):
                 self.model.fungus.biomass/self.fungus_biomass_start, 1
             )
 
-            #dormancy
+            # dormancy
             if 0.5 > fitness:
-                self.set_roundtrip_length(mu=self.model.dormant_roundtrip_mean, sigma=self.model.dormant_roundtrip_std)
+                self.set_roundtrip_length(
+                    mu=self.model.dormant_roundtrip_mean, sigma=self.model.dormant_roundtrip_std)
 
-            #feeding
-            else: 
+            # feeding
+            else:
                 if not self.model.fungus.dead:
                     self.model.nest.feed_larvae()
 
-                self.set_roundtrip_length(mu=self.model.caretaker_roundtrip_mean, sigma=self.model.caretaker_roundtrip_std)
+                self.set_roundtrip_length(
+                    mu=self.model.caretaker_roundtrip_mean, sigma=self.model.caretaker_roundtrip_std)
 
     def put_pheromone(self):
         """
@@ -221,7 +223,8 @@ class AntAgent(BiasedRandomWalkerAgent):
         if self.random.random() <= (1 - interaction_prob):
             nest_content = self.model.grid.iter_cell_list_contents(self.pos)
             caretakers = list(filter(
-                lambda a: isinstance(a, AntAgent) and a.state is AntWorkerState.CARETAKING,
+                lambda a: isinstance(
+                    a, AntAgent) and a.state is AntWorkerState.CARETAKING,
                 nest_content
             ))
             if caretakers:

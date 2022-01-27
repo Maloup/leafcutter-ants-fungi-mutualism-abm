@@ -27,13 +27,11 @@ class Nest(Agent):
     def feed_larvae(self):
         if not self.model.fungus.dead:
             self.model.fungus.biomass -= self.model.caretaker_carrying_amount
-            self.energy_buffer += self.model.fungus_larvae_cvn*self.model.caretaker_carrying_amount 
+            self.energy_buffer += self.model.fungus_larvae_cvn * \
+                self.model.caretaker_carrying_amount
 
     def step(self):
         offspring_count = int(self.energy_buffer /
                               self.model.energy_per_offspring)
         self.energy_buffer -= offspring_count * self.model.energy_per_offspring
         self.ant_birth(offspring_count)
-
-
-    

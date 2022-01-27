@@ -61,8 +61,8 @@ class LeafcutterAntsFungiMutualismModel(Model):
                  fungus_larvae_cvn=0.9, energy_per_offspring=1.0,
                  fungus_biomass_death_threshold=5.0, fungus_feed_threshold=5.0,
                  caretaker_carrying_amount=1, max_fitness_queue_size=20,
-                 caretaker_roundtrip_mean=5.0,caretaker_roundtrip_std=5.0,
-                 dormant_roundtrip_mean=60.0,dormant_roundtrip_std=30.0):
+                 caretaker_roundtrip_mean=5.0, caretaker_roundtrip_std=5.0,
+                 dormant_roundtrip_mean=60.0, dormant_roundtrip_std=30.0):
         super().__init__()
 
         self.collect_data = collect_data
