@@ -8,9 +8,9 @@ from leafcutter_ants_fungi_mutualism.model import LeafcutterAntsFungiMutualismMo
 from mesa.batchrunner import BatchRunner, BatchRunnerMP
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-import os
+# import matplotlib.pyplot as plt
+# import seaborn as sns
+import os, sys
 from tqdm import tqdm
 
 if not os.path.exists('Data/OFAT'):
@@ -35,20 +35,25 @@ def collect_OFAT_data(fileName, problem, model_reporters, fixed_parameters,
         # get the sample for this variable
         samples = np.linspace(*problem[var][1], num=distinct_samples, dtype=problem[var][0])
 
+        # remove this parameter from the fixed parameter dictionary
+        fixed_params_copy = fixed_parameters.copy()
+        del fixed_params_copy[var] 
+
         batch = BatchRunnerMP(LeafcutterAntsFungiMutualismModel, 
                              max_steps=max_steps,
                              iterations=repetitions,
                              variable_parameters={var: samples},
-                             fixed_parameters=fixed_parameters,
+                             fixed_parameters=fixed_params_copy,
                              model_reporters=model_reporters,
-                             display_progress=False)
+                             display_progress=False,
+                             nr_processes = 8)
 
         batch.run_all()
 
         data[var] = batch.get_model_vars_dataframe()
 
     if save_data:
-        np.savez('Data/OFAT/' + fileName, data)
+        np.savez('Data/OFAT/' + fileName, data=data, param_data=(problem, model_reporters, fixed_parameters))
 
     return data
 
@@ -112,34 +117,59 @@ def recover_OFAT_data(fileName):
     return dict(np.load('Data/OFAT/' + fileName + '.npz', allow_pickle=True))['arr_0'][()]
     
 
-# (self, collect_data=True, num_ants=50, num_plants=30, width=20,
+# collect_data=True, num_ants=50, num_plants=30, width=20,
 #                  height=50, pheromone_lifespan=30, num_plant_leaves=100,
 #                  initial_foragers_ratio=0.5, leaf_regrowth_rate=1/2,
 #                  ant_death_probability=0.01, initial_fungus_energy=50,
 #                  fungus_decay_rate=0.005, energy_biomass_cvn=2.0,
 #                  fungus_larvae_cvn=0.9, energy_per_offspring=1.0,
 #                  fungus_biomass_death_threshold=5.0, fungus_feed_threshold=5.0,
-#                  caretaker_carrying_amount=1, max_fitness_queue_size=20):
+#                  caretaker_carrying_amount=1, max_fitness_queue_size=20)
 
 
 
 if __name__ == '__main__':
+
+    if len(sys.argv) < 2:
+        print("no filename specified")
+        sys.exit(-1)
+    
+
+
+
     # define the parameters and ranges to run OFAT for
-    problem = {'num_ants': [int, [1,100]],
-               'num_plants': [int, [1,100]], 
+    problem = {'num_ants': [int, [10,100]],
+               'num_plants': [int, [40,200]], 
                'pheromone_lifespan': [int, [5, 100]],
                'num_plant_leaves': [int, [10, 200]],
                'initial_foragers_ratio': [float, [0.1, 1.0]], 
                'leaf_regrowth_rate': [float, [0.01, 1.0]],
-               'ant_death_probability': [float, [0, 0.1]],
+               'ant_death_probability': [float, [0, 0.02]],
                'initial_fungus_energy': [float, [10, 100]],
                'fungus_decay_rate': [float, [0.001, 0.1]], 
-               'energy_biomass_cvn': [float, [1, 3]], 
+               'energy_biomass_cvn': [float, [1, 4]], 
                'fungus_larvae_cvn': [float, [0.5, 1.5]],
-               'energy_per_offspring': [float, [1.0, 10]],
-               'fungus_feed_threshold': [float, [5.0, 20.0]],
-               'max_fitness_queue_size': [int, [1, 100]],
+               'energy_per_offspring': [float, [0.5, 1.5]],
+               'max_fitness_queue_size': [int, [1, 20]],
+               'caretaker_carrying_amount': [float, [0.1, 2]],
     }
+
+    # problem = {'num_ants': [int, [10,100]],
+    #            'num_plants': [int, [10,100]], 
+    #            'num_plant_leaves': [int, [10, 200]],
+    #            'leaf_regrowth_rate': [float, [0.01, 1.0]],
+    #            'ant_death_probability': [float, [0, 0.02]],
+    #            'fungus_decay_rate': [float, [0.001, 0.1]], 
+    #            'energy_biomass_cvn': [float, [1, 4]], 
+    #            'fungus_larvae_cvn': [float, [0.5, 1.5]],
+    #            'energy_per_offspring': [float, [0.5, 1.5]],
+    #            'caretaker_carrying_amount': [float, [0.5, 2]],
+    # }
+
+    # obtain nominal model parameters
+    model = LeafcutterAntsFungiMutualismModel()
+    default_pheromone_lifespan = model.pheromone_lifespan
+
 
     # set the output variables
     model_reporters = {"Ants_Biomass": track_ants,
@@ -148,19 +178,37 @@ if __name__ == '__main__':
     }
 
     # set fixed parameters, eg collect_data = False
-    fixed_parameters = {'collect_data': False}
+    fixed_parameters = {'collect_data': False,
+                         'width': 50,
+                         'height': 50,
+                         'num_ants': 50,
+                         'num_plants': 100, 
+                         'pheromone_lifespan': 30,
+                         'num_plant_leaves': 100,
+                         'initial_foragers_ratio': 0.5, 
+                         'leaf_regrowth_rate': 0.5,
+                         'ant_death_probability': 0.01,
+                         'initial_fungus_energy': 50,
+                         'fungus_decay_rate': 0.005, 
+                         'energy_biomass_cvn': 2.0, 
+                         'fungus_larvae_cvn': 1.4,
+                         'energy_per_offspring': 1.0,
+                         'fungus_biomass_death_threshold': 5,
+                         'max_fitness_queue_size': 10,
+                         'caretaker_carrying_amount': 1}
 
+    # estimation floor comp 2,5h
+    repetitions = 10
+    max_steps = 1000
+    distinct_samples = 10
 
-    fileName = 'SA-experimentation270122'
+    fileName = f"reps{repetitions}maxtime{max_steps}distinctsam{distinctsamples}" + sys.argv[1]
 
-    repetitions = 8
-    max_steps = 500
-    distinct_samples = 8
 
     collect_OFAT_data(fileName, problem, model_reporters, fixed_parameters, 
                       repetitions=repetitions, time_steps=max_steps, distinct_samples=distinct_samples, 
                       save_data=True)
 
-    data = recover_OFAT_data(fileName)
+    # data = recover_OFAT_data(fileName)
 
-    plot_all_vars(data, model_reporters)
+    # plot_all_vars(data, model_reporters)
