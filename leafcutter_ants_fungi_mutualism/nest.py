@@ -15,7 +15,6 @@ class Nest(Agent):
             average_fitness = sum(fitness_queue_list)/len(fitness_queue_list)
         else:
             average_fitness = 0.5
-        print(n)
         for _ in range(n):
             agent = AntAgent(self.model.next_id(), self.model)
 
@@ -26,9 +25,8 @@ class Nest(Agent):
             self.model.grid.place_agent(agent, self.pos)
 
     def feed_larvae(self):
-        if self.model.fungus.biomass > self.model.fungus_biomass_death_threshold + 2 * self.model.energy_per_offspring:
+        if not self.model.fungus.dead:
             self.model.fungus.biomass -= self.model.caretaker_carrying_amount
-            # `fungus_larvae_cvn` defaults to 1.0
             self.energy_buffer += self.model.fungus_larvae_cvn*self.model.caretaker_carrying_amount 
 
     def step(self):
