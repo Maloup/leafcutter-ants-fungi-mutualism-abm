@@ -53,18 +53,19 @@ class LeafcutterAntsFungiMutualismModel(Model):
     The scheduler is a special model component which controls the order in which agents are activated.
     """
 
-    def __init__(self, collect_data=True, num_ants=50, num_plants=30, width=20,
+    def __init__(self, collect_data=True, num_ants=50, num_plants=30, width=50,
                  height=50, pheromone_lifespan=30, num_plant_leaves=100,
                  initial_foragers_ratio=0.5, leaf_regrowth_rate=1/2,
                  ant_death_probability=0.01, initial_fungus_energy=50,
                  fungus_decay_rate=0.005, energy_biomass_cvn=2.0,
                  fungus_larvae_cvn=0.9, energy_per_offspring=1.0,
                  fungus_biomass_death_threshold=5.0, fungus_feed_threshold=5.0,
-                 caretaker_carrying_amount=1, max_fitness_queue_size=20):
+                 caretaker_carrying_amount=1, max_fitness_queue_size=20,
+                 caretaker_roundtrip_mean=5.0, caretaker_roundtrip_std=5.0,
+                 dormant_roundtrip_mean=60.0, dormant_roundtrip_std=30.0):
         super().__init__()
 
         self.collect_data = collect_data
-
         self.num_ants = num_ants
         self.num_plants = num_plants
         self.pheromone_lifespan = pheromone_lifespan
@@ -87,7 +88,10 @@ class LeafcutterAntsFungiMutualismModel(Model):
 
         self.nest = None
         self.fungus = None
-
+        self.caretaker_roundtrip_mean = caretaker_roundtrip_mean
+        self.caretaker_roundtrip_std = caretaker_roundtrip_std
+        self.dormant_roundtrip_mean = dormant_roundtrip_mean
+        self.dormant_roundtrip_std = dormant_roundtrip_std
         self.init_agents()
 
         self.datacollector = DataCollector(
