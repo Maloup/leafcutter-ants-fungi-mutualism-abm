@@ -142,7 +142,7 @@ class AntAgent(BiasedRandomWalkerAgent):
         self.roundtrip_length -= 1
         if self.roundtrip_length == 0:
             fitness = 1 - arctan_activation_real(
-                self.model.fungus.biomass - self.fungus_biomass_start, 0.5
+                self.model.fungus.biomass - self.fungus_biomass_start, 0.01
             )
 
             try:
@@ -208,7 +208,7 @@ class AntAgent(BiasedRandomWalkerAgent):
         # task division
         interaction_intensity = self.neighbor_density_acc / self.trip_duration
         # add fitness to fitness_queue
-        fitness = 1 - arctan_activation_pstv(interaction_intensity, 0.1)
+        fitness = 1 - arctan_activation_pstv(interaction_intensity, 0.01)
 
         try:
             self.model.nest.forager_fitness_queue.put_nowait(fitness)
@@ -228,7 +228,7 @@ class AntAgent(BiasedRandomWalkerAgent):
                 drafted_caretaker.state = AntWorkerState.EXPLORE
 
         # Switching roles with certain probability
-        if self.random.random() <= arctan_activation_pstv(interaction_intensity, 0.5):
+        if self.random.random() <= arctan_activation_pstv(interaction_intensity, 0.01):
             self.state = AntWorkerState.CARETAKING
         else:
             self.state = AntWorkerState.EXPLORE

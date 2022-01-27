@@ -34,6 +34,20 @@ def track_ratio_foragers(model):
         return 0.0
 
 
+def track_forager_fitness(model):
+    forager_fitness_queue_list, _ = model.nest.get_fitness_q_lists()
+    if len(forager_fitness_queue_list) != 0:
+        return sum(forager_fitness_queue_list)/len(forager_fitness_queue_list)
+
+    return 0.5
+
+def track_fungus_fitness(model):
+    _, fungus_fitness_queue_list = model.nest.get_fitness_q_lists()
+    if len(fungus_fitness_queue_list) != 0:
+        return sum(fungus_fitness_queue_list)/len(fungus_fitness_queue_list)
+
+    return 0.5
+
 class LeafcutterAntsFungiMutualismModel(Model):
     """
     The model class holds the model-level attributes, manages the agents, and generally handles
@@ -85,7 +99,7 @@ class LeafcutterAntsFungiMutualismModel(Model):
                 "Fungus Biomass": lambda model: model.fungus.biomass,
                 "Ant Biomass": track_ants,
                 "Ants with Leaves": track_leaves,
-                "Fraction forager ants": track_ratio_foragers,
+                "Fraction forager ants": track_ratio_foragers
             }
         )
 
