@@ -14,14 +14,10 @@ from mesa.visualization.modules.TextVisualization import TextElement
 from mesa.visualization.UserParam import UserSettableParameter
 
 
-class ForagerFitnessElement(TextElement):
+class FitnessElement(TextElement):
     def render(self, model):
-        return f"Forager fitness: {track_forager_fitness(model)}"
-
-
-class FungusFitnessElement(TextElement):
-    def render(self, model):
-        return f"Fungus fitness: {track_fungus_fitness(model)}"
+        return f"""Forager fitness: {track_forager_fitness(model):.3f}<br />
+Fungus fitness: {track_fungus_fitness(model):.3f}"""
 
 
 def circle_portrayal_example(agent):
@@ -106,8 +102,7 @@ ant_leaves_element = ChartModule([{
     "Label": "Ants with Leaves",
     "Color": "green"
 }], data_collector_name="datacollector")
-forager_fitness_element = ForagerFitnessElement()
-fungus_fitness_element = FungusFitnessElement()
+fitness_element = FitnessElement()
 
 model_kwargs = {
     "num_ants": UserSettableParameter("slider", "Number of ants", 50, 1, 200, 1),
@@ -147,7 +142,7 @@ model_kwargs = {
 
 server = ModularServer(
     LeafcutterAntsFungiMutualismModel,
-    [canvas_element, forager_fitness_element, fungus_fitness_element,
+    [canvas_element, fitness_element,
      fungus_biomass_element, ants_biomass_element, ants_proportion_element,
      ant_leaves_element],
     "LeafcutterAntsFungiMutualism",
