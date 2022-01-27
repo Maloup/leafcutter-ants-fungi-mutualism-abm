@@ -228,7 +228,7 @@ class AntAgent(BiasedRandomWalkerAgent):
                 drafted_caretaker.state = AntWorkerState.EXPLORE
 
         # Switching roles with certain probability
-        if self.random.random() <= interaction_intensity:
+        if self.random.random() <= arctan_activation_pstv(interaction_intensity, 0.5):
             self.state = AntWorkerState.CARETAKING
         else:
             self.state = AntWorkerState.EXPLORE
