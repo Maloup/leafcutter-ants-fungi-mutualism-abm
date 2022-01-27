@@ -1,7 +1,7 @@
 from .random_walker_agent import BiasedRandomWalkerAgent
 from .plant import Plant
 from .pheromone import Pheromone
-from .util import manhattan_distance
+from .util import arctan_activation_pstv, manhattan_distance
 
 import numpy as np
 import queue
@@ -23,6 +23,8 @@ class AntAgent(BiasedRandomWalkerAgent):
         self.has_leaf = False
         self.neighbor_density_acc = 0
         self.trip_duration = 0
+        self.roundtrip_length = None
+
 
     def step(self):
         # mortality
@@ -135,14 +137,26 @@ class AntAgent(BiasedRandomWalkerAgent):
         If enough fungus is available, then feed one unit to larvae
         (decrement `fungus.biomass`, increment `nest.energy_buffer``).
         """
-        # TODO: we can also track the number of caretakers in the model
-        #   and perform the feeding step in one function call instead of
-        #   individually for every caretaker ant. This can be considered once
-        #   we have task allocation/switching up and running.
-        if not self.model.fungus.dead:
-            self.model.nest.feed_larvae()
-        else:
-            pass  # TODO: maybe task-switching can be implemented here?
+        if self.roundtrip_length is None:
+            self.set_roundtrip_length()
+
+        self.roundtrip_length -= 1
+        if self.roundtrip_length == 0:
+            fitness = arctan_activation_pstv(
+                self.model.fungus.biomass/self.fungus_biomass_start, 1
+            )
+            print("Fungus fitness:", fitness)
+
+            #dormancy
+            if 0.5 > fitness:
+                self.set_roundtrip_length()
+
+            #feeding
+            else: 
+                if not self.model.fungus.dead:
+                    self.model.nest.feed_larvae()
+
+                self.set_roundtrip_length()
 
     def put_pheromone(self):
         """
@@ -197,6 +211,7 @@ class AntAgent(BiasedRandomWalkerAgent):
         interaction_prob = self.neighbor_density_acc / self.trip_duration
         # add fitness to fitness_queue
         fitness = 1 - interaction_prob
+        print("Forager fitness:", fitness)
 
         try:
             self.model.nest.fitness_queue.put_nowait(fitness)
@@ -240,3 +255,7 @@ class AntAgent(BiasedRandomWalkerAgent):
     def reset_trip(self):
         self.neighbor_density_acc = 0
         self.trip_duration = 0
+
+    def set_roundtrip_length(self):
+        self.fungus_biomass_start = self.model.fungus.biomass
+        self.roundtrip_length = round(np.random.normal(5, 5))
