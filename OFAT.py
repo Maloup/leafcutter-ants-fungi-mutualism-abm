@@ -53,7 +53,7 @@ def collect_OFAT_data(fileName, problem, model_reporters, fixed_parameters,
         data[var] = batch.get_model_vars_dataframe()
 
     if save_data:
-        np.savez('Data/OFAT/' + fileName, data=data, param_data=(problem, model_reporters, fixed_parameters))
+        np.savez('Data/OFAT/' + fileName, data=data, problem=problem, model_reporters=list(model_reporters.keys()), fixed_parameters=fixed_parameters)
 
     return data
 
@@ -139,33 +139,23 @@ if __name__ == '__main__':
 
     # define the parameters and ranges to run OFAT for
     problem = {'num_ants': [int, [10,100]],
-               'num_plants': [int, [40,200]], 
+               'num_plants': [int, [50,200]], 
                'pheromone_lifespan': [int, [5, 100]],
                'num_plant_leaves': [int, [10, 200]],
                'initial_foragers_ratio': [float, [0.1, 1.0]], 
                'leaf_regrowth_rate': [float, [0.01, 1.0]],
                'ant_death_probability': [float, [0, 0.02]],
                'initial_fungus_energy': [float, [10, 100]],
-               'fungus_decay_rate': [float, [0.001, 0.1]], 
+               'fungus_decay_rate': [float, [0.001, 0.02]], 
                'energy_biomass_cvn': [float, [1, 4]], 
                'fungus_larvae_cvn': [float, [0.5, 1.5]],
                'energy_per_offspring': [float, [0.5, 1.5]],
                'max_fitness_queue_size': [int, [1, 20]],
                'caretaker_carrying_amount': [float, [0.1, 2]],
-               'dormant_roundtrip_mean': [float, [30, 80]]
+               'dormant_roundtrip_mean': [float, [30, 80]],
+               'caretaker_roundtrip_mean': [float, [5, 20]]
     }
 
-    # problem = {'num_ants': [int, [10,100]],
-    #            'num_plants': [int, [10,100]], 
-    #            'num_plant_leaves': [int, [10, 200]],
-    #            'leaf_regrowth_rate': [float, [0.01, 1.0]],
-    #            'ant_death_probability': [float, [0, 0.02]],
-    #            'fungus_decay_rate': [float, [0.001, 0.1]], 
-    #            'energy_biomass_cvn': [float, [1, 4]], 
-    #            'fungus_larvae_cvn': [float, [0.5, 1.5]],
-    #            'energy_per_offspring': [float, [0.5, 1.5]],
-    #            'caretaker_carrying_amount': [float, [0.5, 2]],
-    # }
 
     # obtain nominal model parameters
     model = LeafcutterAntsFungiMutualismModel()
@@ -207,7 +197,7 @@ if __name__ == '__main__':
     max_steps = 1000
     distinct_samples = 10
 
-    fileName = f"reps{repetitions}maxtime{max_steps}distinctsam{distinctsamples}" + sys.argv[1]
+    fileName = f"reps{repetitions}maxtime{max_steps}distinctsam{distinct_samples}" + sys.argv[1]
 
 
     collect_OFAT_data(fileName, problem, model_reporters, fixed_parameters, 
