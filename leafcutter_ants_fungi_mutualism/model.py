@@ -59,10 +59,9 @@ class LeafcutterAntsFungiMutualismModel(Model):
                  ant_death_probability=0.01, initial_fungus_energy=50,
                  fungus_decay_rate=0.005, energy_biomass_cvn=2.0,
                  fungus_larvae_cvn=0.9, energy_per_offspring=1.0,
-                 fungus_biomass_death_threshold=5.0, fungus_feed_threshold=5.0,
-                 caretaker_carrying_amount=1, max_fitness_queue_size=20,
-                 caretaker_roundtrip_mean=5.0, caretaker_roundtrip_std=5.0,
-                 dormant_roundtrip_mean=60.0, dormant_roundtrip_std=30.0):
+                 fungus_biomass_death_threshold=5.0, caretaker_carrying_amount=1,
+                 max_fitness_queue_size=20, caretaker_roundtrip_mean=5.0,
+                 caretaker_roundtrip_std=5.0, dormant_roundtrip_mean=60.0):
         super().__init__()
 
         self.collect_data = collect_data
@@ -77,7 +76,6 @@ class LeafcutterAntsFungiMutualismModel(Model):
         self.energy_biomass_cvn = energy_biomass_cvn
         self.fungus_larvae_cvn = fungus_larvae_cvn
         self.energy_per_offspring = energy_per_offspring
-        self.fungus_feed_threshold = fungus_feed_threshold
         self.fungus_biomass_death_threshold = fungus_biomass_death_threshold
         self.max_fitness_queue_size = max_fitness_queue_size
         self.caretaker_carrying_amount = caretaker_carrying_amount
@@ -91,7 +89,6 @@ class LeafcutterAntsFungiMutualismModel(Model):
         self.caretaker_roundtrip_mean = caretaker_roundtrip_mean
         self.caretaker_roundtrip_std = caretaker_roundtrip_std
         self.dormant_roundtrip_mean = dormant_roundtrip_mean
-        self.dormant_roundtrip_std = dormant_roundtrip_std
         self.init_agents()
 
         self.datacollector = DataCollector(

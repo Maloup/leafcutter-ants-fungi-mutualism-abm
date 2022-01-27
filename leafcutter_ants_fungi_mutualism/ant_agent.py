@@ -149,7 +149,8 @@ class AntAgent(BiasedRandomWalkerAgent):
             # dormancy
             if 0.5 > fitness:
                 self.set_roundtrip_length(
-                    mu=self.model.dormant_roundtrip_mean, sigma=self.model.dormant_roundtrip_std)
+                    mu=self.model.dormant_roundtrip_mean,
+                    sigma=self.model.dormant_roundtrip_mean/2)
 
             # feeding
             else:
