@@ -141,7 +141,7 @@ class AntAgent(BiasedRandomWalkerAgent):
 
         self.roundtrip_length -= 1
         if self.roundtrip_length == 0:
-            fitness = 1 - arctan_activation_pstv(
+            fitness = 1 - arctan_activation_real(
                 self.model.fungus.biomass - self.fungus_biomass_start, 0.5
             )
 
