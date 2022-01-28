@@ -1,3 +1,3 @@
-from leafcutter_ants_fungi_mutualism.server import server  # noqa
+from leafcutter_ants_fungi_mutualism.model.server import server  # noqa
 
 server.launch()

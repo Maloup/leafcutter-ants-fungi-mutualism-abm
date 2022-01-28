@@ -1,2 +1,3 @@
 Mesa>=0.8.9
 numpy>=1.21.2
+multiprocess>=0.70.12.2
