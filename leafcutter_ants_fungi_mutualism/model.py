@@ -3,7 +3,7 @@ from mesa.time import RandomActivation
 from mesa.space import MultiGrid
 from mesa.datacollection import DataCollector
 
-from .ant_agent import AntAgent, AntWorkerState
+from .ant_agent import AntAgent, AntWorkerState, track_death_reason
 from .plant import Plant
 from .nest import Nest
 from .fungus import Fungus
@@ -63,7 +63,7 @@ class LeafcutterAntsFungiMutualismModel(Model):
                  max_fitness_queue_size=20, caretaker_roundtrip_mean=5.0,
                  caretaker_roundtrip_std=5.0, dormant_roundtrip_mean=60.0):
         super().__init__()
-
+        self.death_reason = None
         self.collect_data = collect_data
         self.num_ants = num_ants
         self.num_plants = num_plants
@@ -164,3 +164,4 @@ class LeafcutterAntsFungiMutualismModel(Model):
             self.datacollector.collect(self)
 
         self.schedule.step()
+        self.death_reason = track_death_reason(self)

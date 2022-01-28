@@ -27,6 +27,9 @@ class Nest(Agent):
     def feed_larvae(self):
         if not self.model.fungus.dead:
             self.model.fungus.biomass -= self.model.caretaker_carrying_amount
+            # this feeding step might have killed the fungus already
+            # so check for death
+            self.model.fungus.check_death()
             self.energy_buffer += self.model.fungus_larvae_cvn * \
                 self.model.caretaker_carrying_amount
 

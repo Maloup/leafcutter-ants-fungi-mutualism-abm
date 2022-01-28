@@ -1,4 +1,6 @@
 from numpy import tanh, arctan, pi
+from enum import Enum, auto
+
 
 
 def manhattan_distance(a, b):
@@ -23,3 +25,5 @@ def arctan_activation_real(x, a):
 
 def tanh_activation_real(x, a):
     return 0.5 * tanh(a*x) + 0.5
+
+
