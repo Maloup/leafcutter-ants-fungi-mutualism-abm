@@ -3,11 +3,10 @@ from mesa.time import RandomActivation
 from mesa.space import MultiGrid
 from mesa.datacollection import DataCollector
 
-from .ant_agent import AntAgent, AntWorkerState
+from .ant_agent import AntAgent, AntWorkerState, track_death_reason
 from .plant import Plant
 from .nest import Nest
 from .fungus import Fungus
-from .util import track_death_reason
 
 
 def track_leaves(model):

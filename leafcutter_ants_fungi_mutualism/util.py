@@ -1,9 +1,6 @@
 from numpy import tanh, arctan, pi
 from enum import Enum, auto
 
-class DeathReason(enum.Enum):
-    FUNGUS = auto()
-    ANTS = auto()
 
 
 def manhattan_distance(a, b):
@@ -29,15 +26,4 @@ def arctan_activation_real(x, a):
 def tanh_activation_real(x, a):
     return 0.5 * tanh(a*x) + 0.5
 
-def track_death_reason(model):
-    if model.death_reason:
-        return model.death_reason
-    fungus_dead_p = model.model.fungus.dead
-    if fungus_dead_p:
-        return DeathReason.FUNGUS
 
-    agents_list = model.schedule.agents
-    for agent in agents_list:
-        if isinstance(agent, AntAgent):
-            return None
-    return DeathReason.ANTS

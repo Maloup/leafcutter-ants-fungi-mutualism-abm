@@ -15,6 +15,25 @@ class AntWorkerState(Enum):
     CARETAKING = auto()
 
 
+class DeathReason(Enum):
+    FUNGUS = auto()
+    ANTS = auto()
+
+
+def track_death_reason(model):
+    if model.death_reason:
+        return model.death_reason
+    fungus_dead_p = model.fungus.dead
+    if fungus_dead_p:
+        return DeathReason.FUNGUS
+
+    agents_list = model.schedule.agents
+    for agent in agents_list:
+        if isinstance(agent, AntAgent):
+            return None
+    return DeathReason.ANTS
+
+
 class AntAgent(BiasedRandomWalkerAgent):
     def __init__(self, unique_id, model, state=AntWorkerState.EXPLORE):
         self.unique_id = unique_id
