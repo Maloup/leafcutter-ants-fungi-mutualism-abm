@@ -173,8 +173,8 @@ class AntAgent(BiasedRandomWalkerAgent):
 
             # feeding
             else:
-                if not self.model.fungus.dead:
-                    self.model.nest.feed_larvae()
+                # `fungus.dead` tested inside `feed_larvae`
+                self.model.nest.feed_larvae()
 
                 self.set_roundtrip_length(
                     mu=self.model.caretaker_roundtrip_mean, sigma=self.model.caretaker_roundtrip_std)
