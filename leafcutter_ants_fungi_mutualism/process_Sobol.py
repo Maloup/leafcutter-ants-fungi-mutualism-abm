@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-data = np.load('data/Sobol/sobol_modelevals_test290122.npz', allow_pickle=True)
+data = np.load('data/Sobol/sobol_modelevals_test290122_2.npz', allow_pickle=True)
 # print(data['results'])
 problem = data['problem'][()]
 results = data['results'][()]

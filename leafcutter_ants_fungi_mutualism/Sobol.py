@@ -42,7 +42,7 @@ problem = { #'num_ants': [int, [10,100]],
             'fungus_decay_rate': [float, [0.001, 0.02]], 
             'energy_biomass_cvn': [float, [1, 4]], 
             'fungus_larvae_cvn': [float, [0.5, 1.5]],
-            'max_fitness_queue_size': [int, [1, 20]],
+            #'max_fitness_queue_size': [int, [1, 20]],
             'caretaker_carrying_amount': [float, [0.1, 2]],
             #'dormant_roundtrip_mean': [float, [30, 80]],
             #'caretaker_roundtrip_mean': [float, [5, 20]]

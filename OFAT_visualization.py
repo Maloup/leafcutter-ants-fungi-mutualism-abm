@@ -25,6 +25,9 @@ def plot_param_var_conf(ax, df, var, param, i):
     
     stdev = df.groupby(var)[param].std()
 
+    ax.plot(df[var], df[param], 'ko', markersize=0.8)
+
+
     ax.scatter(x, y, c='k', marker='o')
 #     ax.plot(x, y, c='k', marker='o', linewidth = 0.8)
 #     ax.fill_between(x, y - stdev, y + stdev, color='grey', alpha=0.2)
@@ -44,10 +47,10 @@ def plot_all_vars(data, model_reporters, save_fig=True, show_fig=False):
     
     """
 
-    fig, axs = plt.subplots(len(data.keys()),len(model_reporters.keys()), figsize=(15, 50))
+    fig, axs = plt.subplots(len(data.keys()),len(model_reporters), figsize=(15, 50))
     
     for row, var in enumerate(data.keys()):
-        for col, output_param in enumerate(model_reporters.keys()):
+        for col, output_param in enumerate(model_reporters):
             plot_param_var_conf(axs[row,col], data[var], var, output_param, col)
     
     if save_fig:
@@ -60,7 +63,7 @@ def recover_OFAT_data(fileName):
     """
     Recovers data saved in collect_OFAT_data function
     """
-    return dict(np.load('Data/OFAT/' + fileName + '.npz', allow_pickle=True))['arr_0'][()]
+    return dict(np.load('Data/OFAT/' + fileName + '.npz', allow_pickle=True))
 
 
 if __name__ == '__main__':
@@ -91,12 +94,20 @@ if __name__ == '__main__':
     fixed_parameters = {'collect_data': False}
 
 
-    fileName = 'SA-experimentation270122'
+    
 
-    repetitions = 5
-    max_steps = 500
-    distinct_samples = 5
+    repetitions = 50
+    max_steps = 3000
+    distinct_samples = 10
 
-    data = recover_OFAT_data(fileName)
+    fileName = f"reps{repetitions}maxtime{max_steps}distinctsam{distinct_samples}ripper"
+    
+    results = recover_OFAT_data(fileName)
+
+    data = results['data'][()]
+    problem = results['problem'][()]
+    model_reporters = results['model_reporters'][()]
+    fixed_parameters = results['fixed_parameters'][()]
+
 
     plot_all_vars(data, model_reporters)
