@@ -2,7 +2,7 @@
 Sobol' (global) sensitivity analysis, based on methods provided by the SA notebook and the article of ten Broeke (2016)
 Script to run Sobol' SA and save data
 """
-from model import LeafcutterAntsFungiMutualismModel, track_ants, track_leaves, track_ratio_foragers
+from model import LeafcutterAntsFungiMutualismModel, track_ants, track_leaves, track_ratio_foragers, track_ants_leaves
 from mesa.batchrunner import BatchRunner
 import pandas as pd
 import numpy as np
@@ -42,10 +42,10 @@ problem = { #'num_ants': [int, [10,100]],
             'fungus_decay_rate': [float, [0.001, 0.02]], 
             'energy_biomass_cvn': [float, [1, 4]], 
             'fungus_larvae_cvn': [float, [0.5, 1.5]],
-            #'max_fitness_queue_size': [int, [1, 20]],
+            # 'max_fitness_queue_size': [int, [1, 20]],
             'caretaker_carrying_amount': [float, [0.1, 2]],
             #'dormant_roundtrip_mean': [float, [30, 80]],
-            #'caretaker_roundtrip_mean': [float, [5, 20]]
+            # 'caretaker_roundtrip_mean': [float, [5, 20]]
 }
 
 # SALib's saltelli sampler wants it in another format so here we go
@@ -74,7 +74,7 @@ fixed_parameters = {'collect_data': False,
                     'fungus_biomass_death_threshold': 5,
                     'max_fitness_queue_size': 20,
                     'caretaker_carrying_amount': 1,
-                    'caretaker_roundtrip_mean': 5.0, 
+                    'caretaker_roundtrip_mean': 15, 
                     'caretaker_roundtrip_std': 5.0,
                     'dormant_roundtrip_mean': 60.0,
 }
@@ -105,19 +105,24 @@ distinct_samples = 10
 
 # np.savetxt('data/Sobol/saltellisample', param_values)
 
-
-
-
+def fungus_biomass(model):
+    return model.fungus.biomass
 
 def run_model(args):#, problem_sampler, parameter_setting, fixed_parameters, i):
 
     model, args, problem_sampler, parameter_setting, fixed_parameters, i = args
     
+    # create dictionary containing the variable parameters
     var_param = {}
     for key, val in zip(problem_sampler['names'], parameter_setting):
+        # transform into integer if required
+        if problem[key][0] == int: # NOTE this is using global variable problem.. not the best method, so think about fix
+            val = round(val)
         var_param[key] = val
-    # model = LeafcutterAntsFungiMutualismModel(**var_param, **fixed_parameters)
-    # model, args = args
+
+
+
+
     m = model(**var_param, **fixed_parameters)
 
     while m.running and m.schedule.steps < args["time_steps"]:
@@ -127,6 +132,7 @@ def run_model(args):#, problem_sampler, parameter_setting, fixed_parameters, i):
 
 
 def run_model_parallel(args):
+    args, model_reporters = args
     n_cores = args["n_cores"]
     if n_cores is None:
         n_cores = mp.cpu_count()
@@ -134,28 +140,28 @@ def run_model_parallel(args):
     # load the sample
     param_values = np.loadtxt('data/Sobol/saltellisample' + args['output_file'])
 
-    results = np.zeros((len(param_values), 4))
+    results = np.zeros((len(param_values), len(model_reporters.keys())))
 
     with mp.Pool(n_cores) as pool:
         for model, ix in pool.imap_unordered(
             run_model,
             [(LeafcutterAntsFungiMutualismModel, args, problem_sampler, param_values[i], fixed_parameters, i) for i in range(len(param_values))]
         ):
-            results[ix] = model.fungus.biomass, track_ants(model), track_ratio_foragers(model), track_leaves(model), 
+            results[ix] = np.array([model_reporters[key](model) for key in sorted(model_reporters.keys())])
+            #results[ix] = model.fungus.biomass, track_ants(model), track_ratio_foragers(model), track_leaves(model), 
 
     return results
 
 
 def main(args):
+    args, model_reporters = args
     start = time.time()
-    results = run_model_parallel(args)
+    results = run_model_parallel((args, model_reporters))
     end = time.time()
 
     print(f"Done! Took {end - start}")
     print(f"------ Saving data to {args['output_file']} --------")
-    np.savez('data/Sobol/'+args["output_file"], results=results, fixed_parameters=fixed_parameters, problem=problem_sampler)
-
-    
+    np.savez('data/Sobol/'+args["output_file"], results=results, fixed_parameters=fixed_parameters, problem=problem_sampler, model_reporters=model_reporters)
 
 
 if __name__ == "__main__":
@@ -179,8 +185,14 @@ if __name__ == "__main__":
 
     np.savetxt('data/Sobol/saltellisample' + args['output_file'], param_values)
 
-
-    main(args)
+    # set the output variables
+    model_reporters = {"Ants_Biomass": track_ants,
+                       "Fungus_Biomass": fungus_biomass,
+                       "Fraction forager ants": track_ratio_foragers,
+                       "Available leaves": track_leaves,
+                       "Ants with Leaves": track_ants_leaves,
+    }
+    main((args, model_reporters))
 
 
 

@@ -1,22 +1,24 @@
 """
 Process the results made using Sobol.py script
 """
-
+from model import LeafcutterAntsFungiMutualismModel, track_ants, track_leaves, track_ratio_foragers, track_ants_leaves
 from SALib.analyze import sobol
 import numpy as np
 import matplotlib.pyplot as plt
 
+def fungus_biomass(model):
+    return model.fungus.biomass
 
-data = np.load('data/Sobol/sobol_modelevals_test290122_2.npz', allow_pickle=True)
+data = np.load('data/Sobol/test.npz', allow_pickle=True)
 # print(data['results'])
 problem = data['problem'][()]
 results = data['results'][()]
+model_reporters = data['model_reporters'][()]
 
+Si_all = {}
 
-Si_fungus = sobol.analyze(problem, results[:,0], calc_second_order=False, print_to_console=True)
-Si_ants = sobol.analyze(problem, results[:,1], calc_second_order=False, print_to_console=True)
-Si_forager = sobol.analyze(problem, results[:,2], calc_second_order=False, print_to_console=True)
-Si_leaves = sobol.analyze(problem, results[:,3], calc_second_order=False, print_to_console=True)
+for i, key in enumerate(sorted(model_reporters.keys())):
+    Si_all[key] = sobol.analyze(problem, results[:,i], calc_second_order=False, print_to_console=True)
 
 def plot_index(s, params, i, title=''):
     """
@@ -51,11 +53,11 @@ def plot_index(s, params, i, title=''):
     plt.errorbar(indices, range(l), xerr=errors, linestyle='None', marker='o')
     plt.axvline(0, c='k')
 
-for Si in (Si_fungus, Si_ants, Si_forager, Si_leaves):
+for Si in Si_all:
     # First order
-    plot_index(Si, problem['names'], '1', 'First order sensitivity')
+    plot_index(Si_all[Si], problem['names'], '1', 'First order sensitivity')
     plt.show()
 
     # Total order
-    plot_index(Si, problem['names'], 'T', 'Total order sensitivity')
+    plot_index(Si_all[Si], problem['names'], 'T', 'Total order sensitivity')
     plt.show()
