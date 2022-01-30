@@ -1,22 +1,19 @@
 """
 One-Factor-At-a-Time (OFAT) (local) sensitivity analysis, based on methods provided by the SA notebook and the article of ten Broeke (2016)
-Script to run OFAT and save data
+Script to run OFAT using BatchRunnerMP and save data in the folder data/OFAT
 """
-from leafcutter_ants_fungi_mutualism.model import LeafcutterAntsFungiMutualismModel, track_ants, track_leaves, track_ratio_foragers
-from mesa.batchrunner import BatchRunner, BatchRunnerMP
+from model import LeafcutterAntsFungiMutualismModel, track_ants, track_leaves, track_ratio_foragers, track_ants_leaves
+from batchrunner import BatchRunnerMP
 import pandas as pd
 import numpy as np
-# import matplotlib.pyplot as plt
-# import seaborn as sns
+
 import os, sys
 from tqdm import tqdm
 
-if not os.path.exists('Data/OFAT'):
-    os.makedirs('Data/OFAT')
-if not os.path.exists('Figures/OFAT'):
-    os.makedirs('Figures/OFAT')
-
-
+if not os.path.exists('data/OFAT'):
+    os.makedirs('data/OFAT')
+if not os.path.exists('figures/OFAT'):
+    os.makedirs('figures/OFAT')
 
 def collect_OFAT_data(fileName, problem, model_reporters, fixed_parameters, 
                       repetitions=5, time_steps=100, distinct_samples=5, 
@@ -44,95 +41,27 @@ def collect_OFAT_data(fileName, problem, model_reporters, fixed_parameters,
                              fixed_parameters=fixed_params_copy,
                              model_reporters=model_reporters,
                              display_progress=False,
-                             nr_processes = 8)
+                             nr_processes = sys.argv[2])
 
         batch.run_all()
 
         data[var] = batch.get_model_vars_dataframe()
 
     if save_data:
-        np.savez('Data/OFAT/' + fileName, data=data, problem=problem, model_reporters=list(model_reporters.keys()), fixed_parameters=fixed_parameters)
+        np.savez('data/OFAT/' + fileName, data=data, problem=problem, model_reporters=list(model_reporters.keys()), fixed_parameters=fixed_parameters)
 
     return data
-
-def plot_param_var_conf(ax, df, var, param, i):
-    """
-    Modified from the Sensitivity Analysis notebook provided by the course Agent-based-modelling
-    
-    Helper function for plot_all_vars. Plots the individual parameter vs
-    variables passed.
-    Args:
-        ax: the axis to plot to
-        df: dataframe that holds the data to be plotted
-        var: variables to be taken from the dataframe
-        param: which output variable to plot
-    """
-    x = df.groupby(var).mean().reset_index()[var]
-    y = df.groupby(var).mean()[param]
-
-    repetitions = df.groupby(var)[param].count()
-    minimum = df.groupby(var)[param].min()
-    maximum = df.groupby(var)[param].max()
-    
-    stdev = df.groupby(var)[param].std()
-
-    ax.scatter(x, y, c='k', marker='o')
-#     ax.plot(x, y, c='k', marker='o', linewidth = 0.8)
-#     ax.fill_between(x, y - stdev, y + stdev, color='grey', alpha=0.2)
-    ax.vlines(x, y-stdev, y + stdev, color='grey')
-    
-    
-#     ax.plot(x, minimum, c='magenta', marker='x', linewidth = 0.8)
-#     ax.plot(x, maximum, c='deepskyblue', marker='+', linewidth = 0.8)
-    ax.scatter(x, minimum, c='magenta', marker='x')
-    ax.scatter(x, maximum, c='deepskyblue', marker='+')
-
-    ax.set_xlabel(var)
-    ax.set_ylabel(param)
-
-def plot_all_vars(data, model_reporters, save_fig=False, show_fig=True):
-    """
-    
-    """
-
-    fig, axs = plt.subplots(len(data.keys()),len(model_reporters.keys()), figsize=(15, 50))
-    
-    for row, var in enumerate(data.keys()):
-        for col, output_param in enumerate(model_reporters.keys()):
-            plot_param_var_conf(axs[row,col], data[var], var, output_param, col)
-    
-    if save_fig:
-        fig.savefig('Figures/OFAT/' + fileName + '.svg')
-
-    if show_fig:
-        plt.show()
-
-def recover_OFAT_data(fileName):
-    """
-    Recovers data saved in collect_OFAT_data function
-    """
-    return dict(np.load('Data/OFAT/' + fileName + '.npz', allow_pickle=True))['arr_0'][()]
-    
-
-# collect_data=True, num_ants=50, num_plants=30, width=20,
-#                  height=50, pheromone_lifespan=30, num_plant_leaves=100,
-#                  initial_foragers_ratio=0.5, leaf_regrowth_rate=1/2,
-#                  ant_death_probability=0.01, initial_fungus_energy=50,
-#                  fungus_decay_rate=0.005, energy_biomass_cvn=2.0,
-#                  fungus_larvae_cvn=0.9, energy_per_offspring=1.0,
-#                  fungus_biomass_death_threshold=5.0, fungus_feed_threshold=5.0,
-#                  caretaker_carrying_amount=1, max_fitness_queue_size=20)
-
-
 
 if __name__ == '__main__':
 
     if len(sys.argv) < 2:
-        print("no filename specified")
+        print("no filename specified and no nr of cores specified")
+        print("please run as python3 OFAT.py filname n_cores")
         sys.exit(-1)
-    
-
-
+    elif len(sys.argv) < 3:
+        print("no filename OR no nr of cores specified")
+        print("please run as python3 OFAT.py filname n_cores")
+        sys.exit(-1)
 
     # define the parameters and ranges to run OFAT for
     problem = {'num_ants': [int, [10,100]],
@@ -153,16 +82,16 @@ if __name__ == '__main__':
                'caretaker_roundtrip_mean': [float, [5, 20]]
     }
 
-
     # obtain nominal model parameters
     model = LeafcutterAntsFungiMutualismModel()
     default_pheromone_lifespan = model.pheromone_lifespan
-
 
     # set the output variables
     model_reporters = {"Ants_Biomass": track_ants,
                        "Fungus_Biomass": lambda m: m.fungus.biomass,
                        "Fraction forager ants": track_ratio_foragers,
+                       "Available leaves": track_leaves,
+                       "Ants with Leaves": track_ants_leaves,
     }
 
     # set fixed parameters, eg collect_data = False
@@ -179,7 +108,7 @@ if __name__ == '__main__':
                          'initial_fungus_energy': 50,
                          'fungus_decay_rate': 0.005, 
                          'energy_biomass_cvn': 2.0, 
-                         'fungus_larvae_cvn': 1.4,
+                         'fungus_larvae_cvn': 0.9,
                          'energy_per_offspring': 1.0,
                          'fungus_biomass_death_threshold': 5,
                          'max_fitness_queue_size': 10,
@@ -190,17 +119,13 @@ if __name__ == '__main__':
     }
 
     # estimation floor comp 2,5h
-    repetitions = 5
-    max_steps = 3000
-    distinct_samples = 5
+    repetitions = 2
+    max_steps = 10
+    distinct_samples = 2
 
     fileName = f"reps{repetitions}maxtime{max_steps}distinctsam{distinct_samples}" + sys.argv[1]
-
 
     collect_OFAT_data(fileName, problem, model_reporters, fixed_parameters, 
                       repetitions=repetitions, time_steps=max_steps, distinct_samples=distinct_samples, 
                       save_data=True)
 
-    # data = recover_OFAT_data(fileName)
-
-    # plot_all_vars(data, model_reporters) 

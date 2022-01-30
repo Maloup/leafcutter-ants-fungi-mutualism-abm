@@ -9,7 +9,7 @@ from .nest import Nest
 from .fungus import Fungus
 
 
-def track_leaves(model):
+def track_ants_leaves(model):
     return sum(1 for agent in model.schedule.agents
                if isinstance(agent, AntAgent) and agent.has_leaf)
 
@@ -40,7 +40,6 @@ def track_forager_fitness(model):
         return sum(fitness_queue_list)/len(fitness_queue_list)
 
     return 0.5
-
 
 def track_leaves(model):
     return sum(agent.num_leaves for agent in model.schedule.agents
@@ -100,7 +99,7 @@ class LeafcutterAntsFungiMutualismModel(Model):
             model_reporters={
                 "Fungus Biomass": lambda model: model.fungus.biomass,
                 "Ant Biomass": track_ants,
-                "Ants with Leaves": track_leaves,
+                "Ants with Leaves": track_ants_leaves,
                 "Fraction forager ants": track_ratio_foragers,
                 "Available leaves": track_leaves,
             }
