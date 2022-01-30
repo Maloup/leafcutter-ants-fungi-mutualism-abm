@@ -42,10 +42,10 @@ problem = { #'num_ants': [int, [10,100]],
             'fungus_decay_rate': [float, [0.001, 0.02]], 
             'energy_biomass_cvn': [float, [1, 4]], 
             'fungus_larvae_cvn': [float, [0.5, 1.5]],
-            #'max_fitness_queue_size': [int, [1, 20]],
+            # 'max_fitness_queue_size': [int, [1, 20]],
             'caretaker_carrying_amount': [float, [0.1, 2]],
             #'dormant_roundtrip_mean': [float, [30, 80]],
-            #'caretaker_roundtrip_mean': [float, [5, 20]]
+            # 'caretaker_roundtrip_mean': [float, [5, 20]]
 }
 
 # SALib's saltelli sampler wants it in another format so here we go
@@ -74,7 +74,7 @@ fixed_parameters = {'collect_data': False,
                     'fungus_biomass_death_threshold': 5,
                     'max_fitness_queue_size': 20,
                     'caretaker_carrying_amount': 1,
-                    'caretaker_roundtrip_mean': 5.0, 
+                    'caretaker_roundtrip_mean': 15, 
                     'caretaker_roundtrip_std': 5.0,
                     'dormant_roundtrip_mean': 60.0,
 }
@@ -112,11 +112,17 @@ def run_model(args):#, problem_sampler, parameter_setting, fixed_parameters, i):
 
     model, args, problem_sampler, parameter_setting, fixed_parameters, i = args
     
+    # create dictionary containing the variable parameters
     var_param = {}
     for key, val in zip(problem_sampler['names'], parameter_setting):
+        # transform into integer if required
+        if problem[key][0] == int: # NOTE this is using global variable problem.. not the best method, so think about fix
+            val = round(val)
         var_param[key] = val
-    # model = LeafcutterAntsFungiMutualismModel(**var_param, **fixed_parameters)
-    # model, args = args
+
+
+
+
     m = model(**var_param, **fixed_parameters)
 
     while m.running and m.schedule.steps < args["time_steps"]:
