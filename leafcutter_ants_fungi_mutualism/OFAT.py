@@ -93,7 +93,7 @@ if __name__ == '__main__':
                        "Available leaves": track_leaves,
                        "Ants with Leaves": track_ants_leaves,
     }
-
+``````````````````````````````````````````````````
     # set fixed parameters, eg collect_data = False
     fixed_parameters = {'collect_data': False,
                          'width': 50,
