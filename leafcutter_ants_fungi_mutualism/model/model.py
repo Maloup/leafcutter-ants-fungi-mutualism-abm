@@ -18,6 +18,9 @@ def track_ants(model):
     return sum(1 for agent in model.schedule.agents
                if isinstance(agent, AntAgent))
 
+def track_dormant_ants(model):
+    return sum(1 for agent in model.schedule.agents if (isinstance(agent, AntAgent) and agent.dormant))
+
 
 def track_ratio_foragers(model):
     n_ants = 0

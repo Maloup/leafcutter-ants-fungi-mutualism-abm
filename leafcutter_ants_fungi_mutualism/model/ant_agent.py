@@ -43,6 +43,7 @@ class AntAgent(BiasedRandomWalkerAgent):
         self.neighbor_density_acc = 0
         self.trip_duration = 0
         self.roundtrip_length = None
+        self.dormant = False
 
     def step(self):
         # mortality
@@ -161,12 +162,14 @@ class AntAgent(BiasedRandomWalkerAgent):
 
         self.roundtrip_length -= 1
         if self.roundtrip_length == 0:
+            self.dormant = False 
             fitness = arctan_activation_pstv(
                 self.model.fungus.biomass/self.fungus_biomass_start, 1
             )
 
             # dormancy
             if 0.5 > fitness:
+                self.dormant = True
                 self.set_roundtrip_length(
                     mu=self.model.dormant_roundtrip_mean,
                     sigma=self.model.dormant_roundtrip_mean/2)
