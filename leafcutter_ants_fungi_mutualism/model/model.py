@@ -103,7 +103,7 @@ class LeafcutterAntsFungiMutualismModel(Model):
         self.caretaker_carrying_amount = caretaker_carrying_amount
 
         self.schedule = RandomActivation(self)
-        self.grid = MultiGrid(width=width, height=height, torus=False)
+        self.grid = MultiGrid(width=width, height=height, torus=True)#, torus=False)
         self.initial_foragers_ratio = initial_foragers_ratio
 
         self.nest = None
