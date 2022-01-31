@@ -15,3 +15,8 @@ $ mesa runserver
 ```
 This will start a webserver at http://127.0.0.1:8521 which you can visit using
 your browser.
+
+## Demo
+<p align="center">
+  <img width="500" height="500" src="leafcutter_ants_fungi_mutualism/figures/demo.gif">
+</p>
