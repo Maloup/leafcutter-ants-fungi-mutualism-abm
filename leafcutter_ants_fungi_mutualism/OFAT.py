@@ -67,7 +67,7 @@ if __name__ == '__main__':
 
     # define the parameters and ranges to run OFAT for
     problem = {'num_ants': [int, [10,100]],
-               'num_plants': [int, [50,200]], 
+               'num_plants': [int, [30,200]], 
                'pheromone_lifespan': [int, [5, 100]],
                'num_plant_leaves': [int, [10, 200]],
                'initial_foragers_ratio': [float, [0.1, 1.0]], 
@@ -76,7 +76,7 @@ if __name__ == '__main__':
                'initial_fungus_energy': [float, [10, 100]],
                'fungus_decay_rate': [float, [0.001, 0.02]], 
                'energy_biomass_cvn': [float, [1, 4]], 
-               'fungus_larvae_cvn': [float, [0.5, 1.5]],
+               'fungus_larvae_cvn': [float, [0.2, 1.5]],
                'energy_per_offspring': [float, [0.5, 1.5]],
                'max_fitness_queue_size': [int, [1, 20]],
                'caretaker_carrying_amount': [float, [0.1, 2]],
