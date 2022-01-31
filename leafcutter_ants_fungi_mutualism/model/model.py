@@ -19,7 +19,22 @@ def track_ants(model):
                if isinstance(agent, AntAgent))
 
 def track_dormant_ants(model):
-    return sum(1 for agent in model.schedule.agents if (isinstance(agent, AntAgent) and agent.dormant))
+    """
+    Calculate ratio of dormant ants with respect to total number of caretakers
+    """
+    # sum(1 for agent in model.schedule.agents if (isinstance(agent, AntAgent) and agent.dormant))
+    caretakers_count = 0
+    dormant_count = 0
+    for agent in model.schedule.agents:
+        if isinstance(agent, AntAgent) and agent.state is AntWorkerState.CARETAKING:
+            caretakers_count += 1
+            if agent.dormant:
+                dormant_count += 1
+    if caretakers_count == 0:
+        return 0.0
+    else:
+        return dormant_count / caretakers_count
+
 
 
 def track_ratio_foragers(model):
@@ -105,6 +120,7 @@ class LeafcutterAntsFungiMutualismModel(Model):
                 "Ants with Leaves": track_ants_leaves,
                 "Fraction forager ants": track_ratio_foragers,
                 "Available leaves": track_leaves,
+                "Dormant caretakers fraction": track_dormant_ants
             }
         )
 
