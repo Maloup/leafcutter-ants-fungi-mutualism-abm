@@ -2,7 +2,8 @@
 One-Factor-At-a-Time (OFAT) (local) sensitivity analysis, based on methods provided by the SA notebook and the article of ten Broeke (2016)
 Script to run OFAT using BatchRunnerMP and save data in the folder data/OFAT
 """
-from model import LeafcutterAntsFungiMutualismModel, track_ants, track_leaves, track_ratio_foragers, track_ants_leaves
+from model import LeafcutterAntsFungiMutualismModel, track_ants, track_leaves, track_ratio_foragers
+from model import track_ants_leaves, track_dormant_ants
 from batchrunner import BatchRunnerMP
 import pandas as pd
 import numpy as np
@@ -41,7 +42,8 @@ def collect_OFAT_data(fileName, problem, model_reporters, fixed_parameters,
                              fixed_parameters=fixed_params_copy,
                              model_reporters=model_reporters,
                              display_progress=False,
-                             nr_processes = sys.argv[2])
+                             nr_processes = int(sys.argv[2])
+                             )
 
         batch.run_all()
 
@@ -90,16 +92,18 @@ if __name__ == '__main__':
     model_reporters = {"Ants_Biomass": track_ants,
                        "Fungus_Biomass": lambda m: m.fungus.biomass,
                        "Fraction forager ants": track_ratio_foragers,
+                       "Fraction forager ants": track_ratio_foragers,
                        "Available leaves": track_leaves,
-                       "Ants with Leaves": track_ants_leaves,
+                       "Dormant caretakers fraction": track_dormant_ants,
+                       "Death reason": lambda m: m.death_reason,
     }
-``````````````````````````````````````````````````
+
     # set fixed parameters, eg collect_data = False
     fixed_parameters = {'collect_data': False,
                          'width': 50,
                          'height': 50,
                          'num_ants': 50,
-                         'num_plants': 100, 
+                         'num_plants': 64, 
                          'pheromone_lifespan': 30,
                          'num_plant_leaves': 100,
                          'initial_foragers_ratio': 0.5, 
@@ -110,7 +114,7 @@ if __name__ == '__main__':
                          'energy_biomass_cvn': 2.0, 
                          'fungus_larvae_cvn': 0.9,
                          'energy_per_offspring': 1.0,
-                         'fungus_biomass_death_threshold': 5,
+                         'fungus_biomass_death_threshold': 5.0,
                          'max_fitness_queue_size': 10,
                          'caretaker_carrying_amount': 1,
                          'caretaker_roundtrip_mean': 5.0, 
@@ -118,13 +122,14 @@ if __name__ == '__main__':
                          'dormant_roundtrip_mean': 60.0,
     }
 
+
     # estimation floor comp 2,5h
-    repetitions = 2
-    max_steps = 10
-    distinct_samples = 2
+    repetitions = 64
+    max_steps = 1000
+    distinct_samples = 10
 
     fileName = f"reps{repetitions}maxtime{max_steps}distinctsam{distinct_samples}" + sys.argv[1]
-
+    
     collect_OFAT_data(fileName, problem, model_reporters, fixed_parameters, 
                       repetitions=repetitions, time_steps=max_steps, distinct_samples=distinct_samples, 
                       save_data=True)

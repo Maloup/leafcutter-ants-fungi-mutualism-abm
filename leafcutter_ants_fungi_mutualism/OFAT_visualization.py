@@ -62,7 +62,17 @@ def plot_all_vars(data, model_reporters, save_fig=True, show_fig=False):
 
     for row, var in enumerate(data.keys()):
         for col, output_param in enumerate(model_reporters):
-            plot_param_var_conf(axs[row,col], data[var], var, output_param, col)
+            if output_param == 'Death reason':
+#             print(output_param)
+                x = snapshot_data.groupby(var).mean().reset_index()[var]
+#             print(x)
+                y = snapshot_data.groupby(var).count()['Death reason']
+#             print(y)
+                axs[row,col].scatter(x, y, c='darkgreen', marker='o')
+                axs[row,col].set_xlabel(var)
+                axs[row,col].set_ylabel(param)
+            else:
+                plot_param_var_conf(axs[row,col], data[var], var, output_param, col)
     
 
 
