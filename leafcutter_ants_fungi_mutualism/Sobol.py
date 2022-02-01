@@ -22,11 +22,6 @@ if not os.path.exists('data/Sobol'):
 if not os.path.exists('figures/Sobol'):
     os.makedirs('figures/Sobol')
 
-repetitions = 5
-max_steps = 100
-distinct_samples = 5
-
-
 # from https://salib.readthedocs.io/en/latest/basics.html
 
 
@@ -36,14 +31,14 @@ problem = { #'num_ants': [int, [10,100]],
             #'pheromone_lifespan': [int, [5, 100]],
             #'num_plant_leaves': [int, [10, 200]],
             #'initial_foragers_ratio': [float, [0.1, 1.0]], 
-            #'leaf_regrowth_rate': [float, [0.01, 1.0]],
-            'ant_death_probability': [float, [0, 0.02]],
+            'leaf_regrowth_rate': [float, [0.01, 1.0]],
+            'ant_death_probability': [float, [0.002, 0.015]],
             #'initial_fungus_energy': [float, [10, 100]],
-            'fungus_decay_rate': [float, [0.001, 0.02]], 
+            # 'fungus_decay_rate': [float, [0.001, 0.02]], 
             'energy_biomass_cvn': [float, [1, 4]], 
-            'fungus_larvae_cvn': [float, [0.5, 1.5]],
+            'fungus_larvae_cvn': [float, [0.78, 1.1]],
             # 'max_fitness_queue_size': [int, [1, 20]],
-            'caretaker_carrying_amount': [float, [0.1, 2]],
+            'caretaker_carrying_amount': [float, [0.75, 1.2]],
             #'dormant_roundtrip_mean': [float, [30, 80]],
             # 'caretaker_roundtrip_mean': [float, [5, 20]]
 }
@@ -57,6 +52,7 @@ problem_sampler = {
 
 # set fixed parameters, eg collect_data = False. this includes all parameters not in problem
 fixed_parameters = {'collect_data': False,
+                    'seed': 45683,
                     'width': 50,
                     'height': 50,
                     'num_ants': 50,
@@ -72,10 +68,10 @@ fixed_parameters = {'collect_data': False,
                     'fungus_larvae_cvn': 0.9,
                     'energy_per_offspring': 1.0,
                     'fungus_biomass_death_threshold': 5,
-                    'max_fitness_queue_size': 20,
+                    'max_fitness_queue_size': 10,
                     'caretaker_carrying_amount': 1,
-                    'caretaker_roundtrip_mean': 15, 
-                    'caretaker_roundtrip_std': 5.0,
+                    'caretaker_roundtrip_mean': 5, 
+                    'caretaker_roundtrip_std': 5.0, # note this is no longer a parameter that is used
                     'dormant_roundtrip_mean': 60.0,
 }
 
@@ -89,21 +85,6 @@ repetitions = 10
 max_steps = 100
 distinct_samples = 10
 
-# param_values = saltelli.sample(problem_sampler, distinct_samples)
-# shouldnt the "N" passed to saltelli.sample be a power of 2, otherwise the Sobol' sequence isn't valid????
-""" /home/floor/.local/lib/python3.8/site-packages/SALib/sample/saltelli.py:94: UserWarning: 
-        Convergence properties of the Sobol' sequence is only valid if
-        `N` (10) is equal to `2^n`.
-        
-  warnings.warn(msg) """
-
-# according to the readthedocs from SALib
-# generate samples from the parameter space using saltelli sampler from SALib
-# param_values = saltelli.sample(problem_sampler, 8)
-# print(param_values.shape)
-# print(type(param_values))
-
-# np.savetxt('data/Sobol/saltellisample', param_values)
 
 def fungus_biomass(model):
     return model.fungus.biomass
@@ -120,9 +101,6 @@ def run_model(args):#, problem_sampler, parameter_setting, fixed_parameters, i):
             val = round(val)
         var_param[key] = val
 
-
-
-
     m = model(**var_param, **fixed_parameters)
 
     while m.running and m.schedule.steps < args["time_steps"]:
@@ -138,7 +116,7 @@ def run_model_parallel(args):
         n_cores = mp.cpu_count()
 
     # load the sample
-    param_values = np.loadtxt('data/Sobol/saltellisample' + args['output_file'])
+    param_values = np.loadtxt('data/Sobol/saltellisample') 
 
     results = np.zeros((len(param_values), len(model_reporters.keys())))
 
@@ -163,6 +141,12 @@ def main(args):
     print(f"------ Saving data to {args['output_file']} --------")
     np.savez('data/Sobol/'+args["output_file"], results=results, fixed_parameters=fixed_parameters, problem=problem_sampler, model_reporters=model_reporters)
 
+def create_saltelli_sample():
+    """ create the parameter values. This needs to be done only once!!! """
+    param_values = saltelli.sample(problem_sampler, N=512, calc_second_order=False)
+
+    np.savetxt('data/Sobol/saltellisample', param_values)
+
 
 if __name__ == "__main__":
     argparser = argparse.ArgumentParser(description="Leafcutter Ants Fungy Mutualism model runner")
@@ -170,8 +154,8 @@ if __name__ == "__main__":
     argparser.add_argument("output_file", type=str, help="location of output file")
     # argparser.add_argument("input_sample", type=str, help="location of saltelli sample")    
 
-    argparser.add_argument("-s", "--saltelli-sample", type=int, default=1024,
-                           help="length of saltelli sample, preferrably power of 2")
+    # argparser.add_argument("-s", "--saltelli-sample", type=int, default=1024,
+    #                        help="length of saltelli sample, preferrably power of 2")
     argparser.add_argument("-t", "--time-steps", type=int, default=1000,
                            help="number of time steps to execute")
     argparser.add_argument("-n", "--n-cores", type=int, default=None,
@@ -179,11 +163,10 @@ if __name__ == "__main__":
 
     args = vars(argparser.parse_args())
 
-    param_values = saltelli.sample(problem_sampler, args['saltelli_sample'], calc_second_order=False)
-    # print(param_values.shape)
-    # print(type(param_values))
-
-    np.savetxt('data/Sobol/saltellisample' + args['output_file'], param_values)
+    # create the parameter values. This needs to be done only once!!!
+    # create_saltelli_sample()
+    param_values = np.loadtxt('data/Sobol/saltellisample')
+    create_saltelli_sample()
 
     # set the output variables
     model_reporters = {"Ants_Biomass": track_ants,
@@ -194,45 +177,3 @@ if __name__ == "__main__":
     }
     main((args, model_reporters))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# this gives a Numpy matrix of 8000 by 3
-# the saltelli sampler generates N*(2D+2) samples, where N = 1024 in this example and 
-# D is the number of model inputs
-# keyword argument: calc_second_order=False will exclude second-order indices, resulting in a smaller sample matrix
-# with N*(D+2) rows instead
-
-# run model
-# save the samples to a text file:
-# np.savetxt("data/Sobol/param_values.txt", param_values)
-# each line in param_values is one input to the model
-# the output should be saved to another file with a similar format: one output on each line. 
-# the outputs can then be loaded with 
-# Y = np.loadtxt("outputs.txt", float)
-
-# so if we want to paralellize this among ourselves, we need to split up the param_values textfile
-# then run the model, which can be done in python
-# then save the outputs, however, they need to be on the same line as the parameter values (I assume!!)

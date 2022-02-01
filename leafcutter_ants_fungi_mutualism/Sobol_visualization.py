@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 def fungus_biomass(model):
     return model.fungus.biomass
 
-data = np.load('data/Sobol/test.npz', allow_pickle=True)
+data = np.load('data/Sobol/test-parellize-2.npz', allow_pickle=True)
 # print(data['results'])
 problem = data['problem'][()]
 results = data['results'][()]
@@ -18,7 +18,7 @@ model_reporters = data['model_reporters'][()]
 Si_all = {}
 
 for i, key in enumerate(sorted(model_reporters.keys())):
-    Si_all[key] = sobol.analyze(problem, results[:,i], calc_second_order=False, print_to_console=True)
+    Si_all[key] = sobol.analyze(problem, results[:,i], calc_second_order=False, print_to_console=True, seed=546)
 
 def plot_index(s, params, i, title=''):
     """

@@ -56,29 +56,32 @@ def plot_all_vars(data, model_reporters, save_fig=True, show_fig=False):
     Uses plot_param_var_conf to plot the OFAT results provided in data on separate axes
     """
 
-    fig, axs = plt.subplots(len(data.keys()),len(model_reporters), figsize=(5*len(model_reporters), 3.5*len(data.keys())),
+    fig, axs = plt.subplots(len(data.keys()),len(model_reporters)-1, figsize=(5*(len(model_reporters)-1), 3.5*len(data.keys())),
                             constrained_layout=True
                             )
 
     for row, var in enumerate(data.keys()):
         for col, output_param in enumerate(model_reporters):
             if output_param == 'Death reason':
-#             print(output_param)
-                x = snapshot_data.groupby(var).mean().reset_index()[var]
-#             print(x)
-                y = snapshot_data.groupby(var).count()['Death reason']
-#             print(y)
-                axs[row,col].scatter(x, y, c='darkgreen', marker='o')
-                axs[row,col].set_xlabel(var)
-                axs[row,col].set_ylabel(param)
+# #             print(output_param)
+#                 x = snapshot_data.groupby(var).mean().reset_index()[var]
+# #             print(x)
+#                 y = snapshot_data.groupby(var).count()['Death reason']
+# #             print(y)
+#                 axs[row,col].scatter(x, y, c='darkgreen', marker='o')
+#                 axs[row,col].set_xlabel(var)
+#                 axs[row,col].set_ylabel(param)
+                continue
+                # filter out the Death reason from plotting, for separate plotting
             else:
                 plot_param_var_conf(axs[row,col], data[var], var, output_param, col)
     
 
+    # fig.tight_layout()
 
     if save_fig:
         fig.savefig('figures/OFAT/' + fileName + '.svg')
-
+        fig.savefig('figures/OFAT/' + fileName + '.pdf', bbox_inches='tight')
 
     if show_fig:
         plt.show()
@@ -91,6 +94,44 @@ def recover_OFAT_data(fileName):
     """
     return dict(np.load('data/OFAT/' + fileName + '.npz', allow_pickle=True))
 
+
+def plot_fraction_dead(data, model_reporters, save_fig=True, show_fig=False):
+    """ Creates figure of the fraction of colonies that died out in early stage,
+    for the variable parameters run for in the OFAT """
+
+    # fig, axs = plt.subplots(1, len(data.keys()), figsize=(3.5*len(data.keys()), 5),
+    #                         constrained_layout=True
+                            # )
+    fig, axs = plt.subplots(4,4, figsize=(4*5, 5*4),
+                        constrained_layout=True
+                        )
+    counter = 0
+    for row in range(4):
+        for col in range(4):
+            var = list(data.keys())[counter]
+
+            param = 'Death reason'
+            # print(data)
+            df = data[var]
+            # print(df)
+            # print(len(df))
+            x = df.groupby(var).mean().reset_index()[var] 
+            y = df.groupby(var).count()['Death reason'] / 64 # this is hard coded
+            axs[row, col].plot(x, y, c='darkgreen', marker='o')
+            axs[row, col].set_xlabel(var)
+            axs[row, col].set_ylabel(param)
+            axs[row, col].tick_params(which='both', labelsize=12)
+            counter += 1
+            axs[row, col].set_ylim(0,1)
+            
+    fig.suptitle('Fraction of 64 colonies that die out in early stage', fontsize=24)
+    # fig.tight_layout()
+    if save_fig:
+        fig.savefig('figures/OFAT/fractiondeath' + fileName + '.svg')#'.pdf', bbox_inches='tight')
+        fig.savefig('figures/OFAT/fractiondeath' + fileName + '.pdf', bbox_inches='tight')
+
+    if show_fig:
+        plt.show()
 
 if __name__ == '__main__':
 
@@ -113,5 +154,5 @@ if __name__ == '__main__':
     model_reporters = results['model_reporters'][()]
     fixed_parameters = results['fixed_parameters'][()]
 
-
-    plot_all_vars(data, model_reporters)
+    # plot_all_vars(data, model_reporters)
+    plot_fraction_dead(data, model_reporters)
