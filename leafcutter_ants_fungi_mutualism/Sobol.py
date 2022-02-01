@@ -2,7 +2,8 @@
 Sobol' (global) sensitivity analysis, based on methods provided by the SA notebook and the article of ten Broeke (2016)
 Script to run Sobol' SA and save data
 """
-from model import LeafcutterAntsFungiMutualismModel, track_ants, track_leaves, track_ratio_foragers, track_ants_leaves
+from model import LeafcutterAntsFungiMutualismModel, track_ants, track_leaves, track_ratio_foragers
+from model import track_ants_leaves, track_dormant_ants
 from mesa.batchrunner import BatchRunner
 import pandas as pd
 import numpy as np
@@ -89,6 +90,7 @@ distinct_samples = 10
 def fungus_biomass(model):
     return model.fungus.biomass
 
+
 def run_model(args):#, problem_sampler, parameter_setting, fixed_parameters, i):
 
     model, args, problem_sampler, parameter_setting, fixed_parameters, i = args
@@ -169,11 +171,15 @@ if __name__ == "__main__":
     create_saltelli_sample()
 
     # set the output variables
+    # set the output variables
     model_reporters = {"Ants_Biomass": track_ants,
                        "Fungus_Biomass": fungus_biomass,
                        "Fraction forager ants": track_ratio_foragers,
+                       "Fraction forager ants": track_ratio_foragers,
                        "Available leaves": track_leaves,
-                       "Ants with Leaves": track_ants_leaves,
+                       "Dormant caretakers fraction": track_dormant_ants,
+                    #    "Death reason": lambda m: m.death_reason,
     }
+
     main((args, model_reporters))
 
