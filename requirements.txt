@@ -3,3 +3,7 @@ numpy>=1.21.2
 multiprocess>=0.70.12.2
 SALib>=1.4.5
 pandas>=1.4.0
+seaborn>=0.11.2
+matplotlib>=3.4.3
+imageio>=2.14.1
+tqdm>=4.62.3
