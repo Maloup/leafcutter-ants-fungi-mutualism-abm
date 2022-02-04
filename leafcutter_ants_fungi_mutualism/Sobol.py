@@ -32,16 +32,16 @@ problem = { #'num_ants': [int, [10,100]],
             #'pheromone_lifespan': [int, [5, 100]],
             #'num_plant_leaves': [int, [10, 200]],
             #'initial_foragers_ratio': [float, [0.1, 1.0]], 
-            'leaf_regrowth_rate': [float, [0.01, 1.0]],
-            'ant_death_probability': [float, [0.002, 0.015]],
+            # 'leaf_regrowth_rate': [float, [0.01, 1.0]],
+            # 'ant_death_probability': [float, [0.002, 0.015]],
             #'initial_fungus_energy': [float, [10, 100]],
-            # 'fungus_decay_rate': [float, [0.001, 0.02]], 
+            'fungus_decay_rate': [float, [0.001, 0.02]], 
             'energy_biomass_cvn': [float, [1, 4]], 
-            'fungus_larvae_cvn': [float, [0.78, 1.1]],
+            'fungus_larvae_cvn': [float, [0.55, 1.25]],
             # 'max_fitness_queue_size': [int, [1, 20]],
-            'caretaker_carrying_amount': [float, [0.75, 1.2]],
+            'caretaker_carrying_amount': [float, [0.5, 1.35]],
             #'dormant_roundtrip_mean': [float, [30, 80]],
-            # 'caretaker_roundtrip_mean': [float, [5, 20]]
+            'caretaker_roundtrip_mean': [float, [5, 12]]
 }
 
 # SALib's saltelli sampler wants it in another format so here we go
@@ -53,7 +53,6 @@ problem_sampler = {
 
 # set fixed parameters, eg collect_data = False. this includes all parameters not in problem
 fixed_parameters = {'collect_data': False,
-                    'seed': 45683,
                     'width': 50,
                     'height': 50,
                     'num_ants': 50,
@@ -175,9 +174,9 @@ if __name__ == "__main__":
     model_reporters = {"Ants_Biomass": track_ants,
                        "Fungus_Biomass": fungus_biomass,
                        "Fraction forager ants": track_ratio_foragers,
-                       "Fraction forager ants": track_ratio_foragers,
                        "Available leaves": track_leaves,
                        "Dormant caretakers fraction": track_dormant_ants,
+                       "Ants with leaves": track_ants_leaves,
                     #    "Death reason": lambda m: m.death_reason,
     }
 

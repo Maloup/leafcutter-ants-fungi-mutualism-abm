@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from model import LeafcutterAntsFungiMutualismModel, track_ants, track_leaves, track_ratio_foragers, track_ants_leaves
+from model import LeafcutterAntsFungiMutualismModel, track_ants, track_leaves, track_ratio_foragers, track_ants_leaves, track_dormant_ants
 
 import sys
 
@@ -43,24 +43,24 @@ def plot_param_var_conf(ax, df, var, param, i):
     ax.scatter(x, minimum, c='magenta', marker='x')
     ax.scatter(x, maximum, c='deepskyblue', marker='+')
 
-    ax.set_xlabel(var)
-    ax.set_ylabel(param)
+    ax.set_xlabel(var, fontsize=14)
+    ax.set_ylabel(param, fontsize=14)
     # ax.grid()
 
     ax.tick_params(which='both', labelsize=12)
 
-def plot_all_vars(data, model_reporters, save_fig=True, show_fig=False):
+def plot_all_vars(data, model_reporters, problem, save_fig=True, show_fig=False):
     """
     Modified from the Sensitivity Analysis notebook provided by the course Agent-based-modelling
 
     Uses plot_param_var_conf to plot the OFAT results provided in data on separate axes
     """
 
-    fig, axs = plt.subplots(len(data.keys()),len(model_reporters)-1, figsize=(5*(len(model_reporters)-1), 3.5*len(data.keys())),
+    fig, axs = plt.subplots(len(problem.keys()),len(model_reporters)-1, figsize=(5*(len(model_reporters)-1), 3.5*len(problem.keys())),
                             constrained_layout=True
                             )
 
-    for row, var in enumerate(data.keys()):
+    for row, var in enumerate(problem.keys()):
         for col, output_param in enumerate(model_reporters):
             if output_param == 'Death reason':
 # #             print(output_param)
@@ -80,8 +80,9 @@ def plot_all_vars(data, model_reporters, save_fig=True, show_fig=False):
     # fig.tight_layout()
 
     if save_fig:
-        fig.savefig('figures/OFAT/' + fileName + '.svg')
-        fig.savefig('figures/OFAT/' + fileName + '.pdf', bbox_inches='tight')
+        # fig.savefig('figures/OFAT/presentation' + fileName + '.svg')
+        # fig.savefig('figures/OFAT/presentation' + fileName + '.pdf', bbox_inches='tight')
+        fig.savefig('figures/OFAT/presentation' + fileName + '.png', dpi=300)
 
     if show_fig:
         plt.show()
@@ -118,8 +119,8 @@ def plot_fraction_dead(data, model_reporters, save_fig=True, show_fig=False):
             x = df.groupby(var).mean().reset_index()[var] 
             y = df.groupby(var).count()['Death reason'] / 64 # this is hard coded
             axs[row, col].plot(x, y, c='darkgreen', marker='o')
-            axs[row, col].set_xlabel(var)
-            axs[row, col].set_ylabel(param)
+            axs[row, col].set_xlabel(var, fontsize=12)
+            axs[row, col].set_ylabel('Fraction Dead', fontsize=12)
             axs[row, col].tick_params(which='both', labelsize=12)
             counter += 1
             axs[row, col].set_ylim(0,1)
@@ -154,5 +155,38 @@ if __name__ == '__main__':
     model_reporters = results['model_reporters'][()]
     fixed_parameters = results['fixed_parameters'][()]
 
-    # plot_all_vars(data, model_reporters)
-    plot_fraction_dead(data, model_reporters)
+    # define the parameters and ranges to run OFAT for
+    problem = {#'num_ants': [int, [10,100]],
+            #    'num_plants': [int, [30,200]], 
+            #    'pheromone_lifespan': [int, [5, 100]],
+            #    'num_plant_leaves': [int, [10, 200]],
+            #    'initial_foragers_ratio': [float, [0.1, 1.0]], 
+               'leaf_regrowth_rate': [float, [0.01, 1.0]],
+            #    'ant_death_probability': [float, [0, 0.02]],
+            #    'initial_fungus_energy': [float, [10, 100]],
+            #    'fungus_decay_rate': [float, [0.001, 0.02]], 
+            #    'energy_biomass_cvn': [float, [1, 4]], 
+               'fungus_larvae_cvn': [float, [0.2, 1.5]],
+            #    'energy_per_offspring': [float, [0.5, 1.5]],
+            #    'max_fitness_queue_size': [int, [1, 20]],
+            #    'caretaker_carrying_amount': [float, [0.1, 2]],
+            #    'dormant_roundtrip_mean': [float, [30, 80]],
+            #    'caretaker_roundtrip_mean': [float, [5, 20]]
+    }
+
+    # obtain nominal model parameters
+    model = LeafcutterAntsFungiMutualismModel()
+    default_pheromone_lifespan = model.pheromone_lifespan
+
+    # set the output variables
+    model_reporters = ["Ants_Biomass",
+                       "Fraction forager ants",
+                       "Dormant caretakers fraction",
+                       "Death reason",
+    ]
+
+
+
+
+    plot_all_vars(data, model_reporters, problem)
+    # plot_fraction_dead(data, model_reporters)

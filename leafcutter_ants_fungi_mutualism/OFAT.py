@@ -92,7 +92,6 @@ if __name__ == '__main__':
     model_reporters = {"Ants_Biomass": track_ants,
                        "Fungus_Biomass": lambda m: m.fungus.biomass,
                        "Fraction forager ants": track_ratio_foragers,
-                       "Fraction forager ants": track_ratio_foragers,
                        "Available leaves": track_leaves,
                        "Dormant caretakers fraction": track_dormant_ants,
                        "Death reason": lambda m: m.death_reason,
