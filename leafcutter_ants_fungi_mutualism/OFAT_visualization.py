@@ -190,3 +190,6 @@ if __name__ == '__main__':
 
     plot_all_vars(data, model_reporters, problem)
     # plot_fraction_dead(data, model_reporters)
+
+
+    
