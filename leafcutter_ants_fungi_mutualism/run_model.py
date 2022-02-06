@@ -9,10 +9,35 @@ from itertools import product
 from model import LeafcutterAntsFungiMutualismModel
 from batchrunner import BatchRunnerMP
 
+fixed_parameters = {'collect_data': True,
+                    'width': 50,
+                    'height': 50,
+                    'num_ants': 50,
+                    #For experiment 2 num_plants {30, 60, 120}, for experiment 1: 64
+                    'num_plants': 64,
+                    'pheromone_lifespan': 30,
+                     #For experiment 2 num_plant_leaves {100, 50, 25}, for experiment 1: 100
+                    'num_plant_leaves': 100 ,
+                    'initial_foragers_ratio': 0.5,
+                    'leaf_regrowth_rate': 0.5,
+                    'ant_death_probability': 0.01,
+                    'initial_fungus_energy': 50,
+                    'fungus_decay_rate': 0.005,
+                    'energy_biomass_cvn': 2.0,
+                    'fungus_larvae_cvn': 0.9,
+                    'energy_per_offspring': 1.0,
+                    'fungus_biomass_death_threshold': 5.0,
+                    'max_fitness_queue_size': 10,
+                    'caretaker_carrying_amount': 1,
+                    'caretaker_roundtrip_mean': 5.0,
+                    'caretaker_roundtrip_std': 5.0,
+                    'dormant_roundtrip_mean': 60.0,
+}
+
 
 def run_model(args):
     model, args = args
-    m = model(**{"collect_data": args["collect_timeseries"]})
+    m = model(**fixed_parameters)
 
     while m.running and m.schedule.steps < args["time_steps"]:
         m.step()
