@@ -9,28 +9,45 @@ from enum import Enum, auto
 
 
 class AntWorkerState(Enum):
-    EXPLORE = auto()
-    RECRUIT = auto()
-    HARVEST = auto()
-    CARETAKING = auto()
+    """
+    Enum for encoding the role and behaviour of ant agents
+    """
+    EXPLORE = auto() # biased random walk
+    RECRUIT = auto() # release pheromones, return to nest
+    HARVEST = auto() # follow pheromone trail
+    CARETAKING = auto() # stay at nest, feed larvae
 
 
 class DeathReason(Enum):
+    """
+    Enum for storing the reason why the ant colony "died". The colony
+    is considered doomed if either the fungus or all the ants die.
+    """
     FUNGUS = auto()
     ANTS = auto()
 
 
 def track_death_reason(model):
+    """
+    Checks if the colony is doomed and returns the death reason enum,
+    which can then be assigned to the model's `death_reason` attribute.
+    A colony is considered doomed if either the fungus or all the ants die.
+    """
     if model.death_reason:
+        # death reason has already been recorded
         return model.death_reason
-    fungus_dead_p = model.fungus.dead
-    if fungus_dead_p:
+    # is the fungus dead?
+    if model.fungus.dead:
         return DeathReason.FUNGUS
 
+    # the fungus is not dead
+    # check if all ants are dead
     agents_list = model.schedule.agents
     for agent in agents_list:
         if isinstance(agent, AntAgent):
+            # a live ant is found
             return None
+    # no ants were found
     return DeathReason.ANTS
 
 
@@ -52,7 +69,7 @@ class AntAgent(BiasedRandomWalkerAgent):
             self.model.schedule.remove(self)
             return
 
-        # be nice if Python had pattern matching with enums
+        # structural pattern matching was introduced in Python 3.10
         if self.state is AntWorkerState.EXPLORE:
             self.explore_step()
         elif self.state is AntWorkerState.RECRUIT:
