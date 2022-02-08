@@ -9,6 +9,7 @@ def manhattan_distance(a, b):
     """
     return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
+
 def tanh_activation_pstv(x, a):
     """
     Maps the positive real line to [0,1] using the hyperbolic tangent function.
@@ -55,6 +56,7 @@ def tanh_activation_pstv(x, a):
     """
     return tanh(a*x)
 
+
 def arctan_activation_pstv(x, a):
     """
     Maps the positive real line to [0,1] using the arctangent function.
@@ -99,6 +101,7 @@ def arctan_activation_pstv(x, a):
      ⠀0⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀10⠀
     """
     return (2.0/pi)*arctan(a*x)
+
 
 def arctan_activation_real(x, a):
     """
@@ -145,6 +148,7 @@ def arctan_activation_real(x, a):
      ⠀-5⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀5
     """
     return (1/pi) * (arctan(a * x)) + 0.5
+
 
 def tanh_activation_real(x, a):
     """
