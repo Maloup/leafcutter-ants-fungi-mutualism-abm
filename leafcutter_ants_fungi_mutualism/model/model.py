@@ -10,11 +10,17 @@ from .fungus import Fungus
 
 
 def track_ants_leaves(model):
+    """
+    Count number of ants with leaves in the model
+    """
     return sum(1 for agent in model.schedule.agents
                if isinstance(agent, AntAgent) and agent.has_leaf)
 
 
 def track_ants(model):
+    """
+    Count total number of ants in the model
+    """
     return sum(1 for agent in model.schedule.agents
                if isinstance(agent, AntAgent))
 
@@ -38,6 +44,9 @@ def track_dormant_ants(model):
 
 
 def track_ratio_foragers(model):
+    """
+    Calculate ratio of foragers to total number ants
+    """
     n_ants = 0
     n_foragers = 0
     for agent in model.schedule.agents:
@@ -53,13 +62,20 @@ def track_ratio_foragers(model):
 
 
 def track_forager_fitness(model):
+    """
+    Calculate the mean forager fitness using the Moran
+    process queue
+    """
     fitness_queue_list = list(model.nest.fitness_queue.queue)
     if len(fitness_queue_list) != 0:
         return sum(fitness_queue_list)/len(fitness_queue_list)
-
-    return 0.5
+    else:
+        return 0.5
 
 def track_leaves(model):
+    """
+    Count number of ants that are carrying leaves
+    """
     return sum(agent.num_leaves for agent in model.schedule.agents
                if isinstance(agent, Plant))
 
