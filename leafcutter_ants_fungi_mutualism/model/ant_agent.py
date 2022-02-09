@@ -29,7 +29,7 @@ class DeathReason(Enum):
     ANTS = auto()
 
 
-def track_death_reason(model):
+def track_death_reason(model) -> DeathReason:
     """
     Checks if the colony is doomed and returns the death reason enum,
     which can then be assigned to the model's `death_reason` attribute.
@@ -85,7 +85,7 @@ class AntAgent(BiasedRandomWalkerAgent):
             self.neighbor_density_acc += self.get_neighborhood_density()
             self.trip_duration += 1
 
-    def explore_step(self):
+    def explore_step(self) -> None:
         """
         When in explore state, the worker ant does a random walk until one of
         the following events occurs:
@@ -108,7 +108,7 @@ class AntAgent(BiasedRandomWalkerAgent):
         elif nearby_pheromones:
             self.state = AntWorkerState.HARVEST
 
-    def recruit_step(self):
+    def recruit_step(self) -> None:
         """
         In the recruit state, the ant returns to the hive in a straight line
         (using its memory/sensing abilities) while leaving a pheromone trail for
@@ -128,7 +128,7 @@ class AntAgent(BiasedRandomWalkerAgent):
         self.model.grid.move_agent(
             self, (self.pos[0] + x_step, self.pos[1] + y_step))
 
-    def harvest_step(self):
+    def harvest_step(self) -> None:
         """
         In the harvest state, the ant follows the trail of pheromones towards
         the plant. If it arrives at a plant, it will cut a piece of leaf off and
@@ -169,7 +169,7 @@ class AntAgent(BiasedRandomWalkerAgent):
         outwards_pheromone = nearby_pheromones[rand_outwards]
         self.model.grid.move_agent(self, outwards_pheromone.pos)
 
-    def caretaking_step(self):
+    def caretaking_step(self) -> None:
         """
         Check the health of the fungus (i.e. if its biomass has decreased).
         If biomass has decreased, then the ant does not feed the fungus and
@@ -207,7 +207,7 @@ class AntAgent(BiasedRandomWalkerAgent):
                 self.set_roundtrip_length(
                     mu=self.model.caretaker_roundtrip_mean, sigma=self.model.caretaker_roundtrip_std)
 
-    def put_pheromone(self):
+    def put_pheromone(self) -> None:
         """
         Put a pheromone on the current position of the ant if there is none yet,
         otherwise re-mark the cell.
@@ -222,7 +222,7 @@ class AntAgent(BiasedRandomWalkerAgent):
         self.model.schedule.add(agent)
         self.model.grid.place_agent(agent, self.pos)
 
-    def get_direction_towards_nest(self):
+    def get_direction_towards_nest(self) -> (int, int):
         """
         Get the direction tuple towards the nest. Returns a tuple with the
         first element corresponding to the x direction and the second element
@@ -237,7 +237,7 @@ class AntAgent(BiasedRandomWalkerAgent):
 
         return x_step, y_step
 
-    def get_nearby_plants_and_pheromones(self):
+    def get_nearby_plants_and_pheromones(self) -> ([int],[int]):
         """
         Returns two lists of pheromones and plants in the
         Moore neighborhood of the current position.
@@ -254,7 +254,7 @@ class AntAgent(BiasedRandomWalkerAgent):
 
         return nearby_plants, nearby_pheromones
 
-    def returned_to_nest(self):
+    def returned_to_nest(self) -> None:
         """
         If the ant has a leaf, feed the leaf to the fungus
         and then conditionally switch role to caretaking
@@ -296,7 +296,7 @@ class AntAgent(BiasedRandomWalkerAgent):
 
         self.reset_trip()
 
-    def get_neighborhood_density(self):
+    def get_neighborhood_density(self) -> float:
         """
         Calculates neighborhood density as the number of occupied
         cells in the Moore neighborhood of the current position.
@@ -315,7 +315,7 @@ class AntAgent(BiasedRandomWalkerAgent):
         neighbor_density = count / 9
         return neighbor_density
 
-    def reset_trip(self):
+    def reset_trip(self) -> None:
         """
         Reset neighborhood density calculation variables.
         """
@@ -325,7 +325,7 @@ class AntAgent(BiasedRandomWalkerAgent):
         self.neighbor_density_acc = 0
         self.trip_duration = 0
 
-    def set_roundtrip_length(self, mu=5, sigma=5):
+    def set_roundtrip_length(self, mu=5, sigma=5) -> None:
         """
         set roundtrip length by drawing from a normal distribution
         with mean `mu` and standard deviation `sigma`
