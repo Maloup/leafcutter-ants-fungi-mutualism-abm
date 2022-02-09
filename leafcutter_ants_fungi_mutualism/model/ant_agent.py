@@ -280,9 +280,9 @@ class AntAgent(BiasedRandomWalkerAgent):
         if self.random.random() <= (1 - interaction_prob):
             nest_content = self.model.grid.iter_cell_list_contents(self.pos)
             caretakers = list(filter(
-                lambda a: isinstance(
-                    a, AntAgent) and a.state is AntWorkerState.CARETAKING,
-                nest_content
+               lambda a: isinstance(
+                  a, AntAgent) and a.state is AntWorkerState.CARETAKING,
+             nest_content
             ))
             if caretakers:
                 drafted_caretaker = self.random.choice(caretakers)
