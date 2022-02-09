@@ -8,6 +8,7 @@ class Nest(Agent):
     Agent object used for modeling the ant colony. It occupies a single grid cell
     and ants in the `CARETAKING` must also occupy the same cell.
     """
+
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
         # energy buffer - models nutrition provided to larvae
