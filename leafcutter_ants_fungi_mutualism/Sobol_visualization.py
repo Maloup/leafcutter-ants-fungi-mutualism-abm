@@ -6,8 +6,10 @@ from SALib.analyze import sobol
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def fungus_biomass(model):
     return model.fungus.biomass
+
 
 data = np.load('data/Sobol/test.npz', allow_pickle=True)
 # print(data['results'])
@@ -18,7 +20,9 @@ model_reporters = data['model_reporters'][()]
 Si_all = {}
 
 for i, key in enumerate(sorted(model_reporters.keys())):
-    Si_all[key] = sobol.analyze(problem, results[:,i], calc_second_order=False, print_to_console=True)
+    Si_all[key] = sobol.analyze(
+        problem, results[:, i], calc_second_order=False, print_to_console=True)
+
 
 def plot_index(s, params, i, title=''):
     """
@@ -52,6 +56,7 @@ def plot_index(s, params, i, title=''):
     plt.yticks(range(l), params)
     plt.errorbar(indices, range(l), xerr=errors, linestyle='None', marker='o')
     plt.axvline(0, c='k')
+
 
 for Si in Si_all:
     # First order

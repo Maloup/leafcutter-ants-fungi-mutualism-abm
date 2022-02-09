@@ -2,7 +2,6 @@ from numpy import tanh, arctan, pi
 from enum import Enum, auto
 
 
-
 def manhattan_distance(a, b):
     """
     Shortest distance between two points in ℤ²

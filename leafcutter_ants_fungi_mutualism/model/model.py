@@ -24,6 +24,7 @@ def track_ants(model):
     return sum(1 for agent in model.schedule.agents
                if isinstance(agent, AntAgent))
 
+
 def track_dormant_ants(model):
     """
     Calculate ratio of dormant ants with respect to total number of caretakers
@@ -41,7 +42,6 @@ def track_dormant_ants(model):
         return dormant_count / caretakers_count
 
 
-
 def track_ratio_foragers(model):
     """
     Calculate fraction of foragers in the ant population
@@ -54,7 +54,7 @@ def track_ratio_foragers(model):
             if agent.state is not AntWorkerState.CARETAKING:
                 n_foragers += 1
 
-    # avoid `ZeroDivisionError` 
+    # avoid `ZeroDivisionError`
     if n_ants > 0:
         return n_foragers / n_ants
     else:
@@ -71,6 +71,7 @@ def track_forager_fitness(model):
         return sum(fitness_queue_list)/len(fitness_queue_list)
     else:
         return 0.5
+
 
 def track_leaves(model):
     """

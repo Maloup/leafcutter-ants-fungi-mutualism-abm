@@ -3,6 +3,7 @@ from multiprocess import Pool, cpu_count
 
 from mesa.batchrunner import BatchRunner
 
+
 class BatchRunnerMP(BatchRunner):
     """Child class of BatchRunner, extended with multiprocessing support."""
 

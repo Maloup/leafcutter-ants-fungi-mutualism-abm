@@ -12,10 +12,10 @@ class AntWorkerState(Enum):
     """
     Enum for encoding the role and behaviour of ant agents
     """
-    EXPLORE = auto() # biased random walk
-    RECRUIT = auto() # release pheromones, return to nest
-    HARVEST = auto() # follow pheromone trail
-    CARETAKING = auto() # stay at nest, feed larvae
+    EXPLORE = auto()  # biased random walk
+    RECRUIT = auto()  # release pheromones, return to nest
+    HARVEST = auto()  # follow pheromone trail
+    CARETAKING = auto()  # stay at nest, feed larvae
 
 
 class DeathReason(Enum):
@@ -184,7 +184,7 @@ class AntAgent(BiasedRandomWalkerAgent):
         self.roundtrip_length -= 1
         if self.roundtrip_length == 0:
             # dormancy time is up
-            self.dormant = False 
+            self.dormant = False
             # NB: `fitness` is not as in the Moran-process context
             fitness = arctan_activation_pstv(
                 self.model.fungus.biomass/self.fungus_biomass_start, 1

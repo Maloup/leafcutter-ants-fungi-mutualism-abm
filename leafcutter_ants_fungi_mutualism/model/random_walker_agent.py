@@ -9,6 +9,7 @@ class RandomWalkerAgent(Agent):
     An agent class capable of executing an unbiased random
     walk step on a grid.
     """
+
     def __init__(self, unique_id, model):
         """
         Parameters
@@ -33,6 +34,7 @@ class BiasedRandomWalkerAgent(RandomWalkerAgent):
     An agent class capable of performing a biased random
     walk step on a model's grid.
     """
+
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
         self.prev_pos = None
