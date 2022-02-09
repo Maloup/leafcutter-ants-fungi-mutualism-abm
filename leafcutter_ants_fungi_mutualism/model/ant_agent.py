@@ -115,7 +115,8 @@ class AntAgent(BiasedRandomWalkerAgent):
         other ants to find and harvest the plant.
         """
         if self.model.on_nest(self):
-            # found nest, task of laying pheromone trail complete, return to explore state
+            # found nest, task of laying pheromone trail complete, return to
+            # explore state
             self.returned_to_nest()
             return
 
@@ -187,15 +188,16 @@ class AntAgent(BiasedRandomWalkerAgent):
             self.dormant = False
             # NB: `fitness` is not as in the Moran-process context
             fitness = arctan_activation_pstv(
-                self.model.fungus.biomass/self.fungus_biomass_start, 1
+                self.model.fungus.biomass / self.fungus_biomass_start, 1
             )
 
             if 0.5 > fitness:
-                # fungus health has declined, do not feed the larvae and remain dormant for some time
+                # fungus health has declined, do not feed the larvae and remain
+                # dormant for some time
                 self.dormant = True
                 self.set_roundtrip_length(
                     mu=self.model.dormant_roundtrip_mean,
-                    sigma=self.model.dormant_roundtrip_mean/2)
+                    sigma=self.model.dormant_roundtrip_mean / 2)
 
             # feed the larvae
             else:
@@ -256,7 +258,7 @@ class AntAgent(BiasedRandomWalkerAgent):
         """
         If the ant has a leaf, feed the leaf to the fungus
         and then conditionally switch role to caretaking
-        using the Moran process queue. 
+        using the Moran process queue.
         """
         # feed fungus first if we have a leaf
         if self.has_leaf:
@@ -305,11 +307,12 @@ class AntAgent(BiasedRandomWalkerAgent):
         count = 0
         for cell in neighbor_cells:
             for agent in self.model.grid.iter_cell_list_contents(cell):
-                if isinstance(agent, AntAgent) and self.unique_id != agent.unique_id:
+                if isinstance(
+                        agent, AntAgent) and self.unique_id != agent.unique_id:
                     count += 1
                     break
 
-        neighbor_density = count/9
+        neighbor_density = count / 9
         return neighbor_density
 
     def reset_trip(self):
@@ -329,4 +332,4 @@ class AntAgent(BiasedRandomWalkerAgent):
         """
         self.fungus_biomass_start = self.model.fungus.biomass
         # self.roundtrip_length = max(round(np.random.normal(mu, sigma)), 1)
-        self.roundtrip_length = round(np.random.uniform(1, mu*2))
+        self.roundtrip_length = round(np.random.uniform(1, mu * 2))

@@ -7,6 +7,7 @@ class Plant(Agent):
     leaves from this agent and this agent regrows some of its leaves
     at every time step.
     """
+
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
         self.initial_num_leaves = self.model.num_plant_leaves

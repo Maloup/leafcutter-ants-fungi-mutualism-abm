@@ -53,7 +53,7 @@ def tanh_activation_pstv(x, a):
      └────────────────────────────────────────┘
      ⠀0⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀10⠀
     """
-    return tanh(a*x)
+    return tanh(a * x)
 
 
 def arctan_activation_pstv(x, a):
@@ -99,7 +99,7 @@ def arctan_activation_pstv(x, a):
      └────────────────────────────────────────┘
      ⠀0⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀10⠀
     """
-    return (2.0/pi)*arctan(a*x)
+    return (2.0 / pi) * arctan(a * x)
 
 
 def arctan_activation_real(x, a):
@@ -146,7 +146,7 @@ def arctan_activation_real(x, a):
      └────────────────────────────────────────┘
      ⠀-5⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀5
     """
-    return (1/pi) * (arctan(a * x)) + 0.5
+    return (1 / pi) * (arctan(a * x)) + 0.5
 
 
 def tanh_activation_real(x, a):
@@ -194,4 +194,4 @@ def tanh_activation_real(x, a):
      └────────────────────────────────────────┘
      ⠀-5⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀5
     """
-    return 0.5 * tanh(a*x) + 0.5
+    return 0.5 * tanh(a * x) + 0.5

@@ -31,7 +31,8 @@ distinct_samples = 5
 # from https://salib.readthedocs.io/en/latest/basics.html
 
 
-# define the parameters and ranges in a way that is not confusing; uncomment parameters to include in analysis
+# define the parameters and ranges in a way that is not confusing;
+# uncomment parameters to include in analysis
 problem = {  # 'num_ants': [int, [10,100]],
     # 'num_plants': [int, [50,200]],
     # 'pheromone_lifespan': [int, [5, 100]],
@@ -56,7 +57,8 @@ problem_sampler = {
     'bounds': [problem[key][1] for key in sorted(problem.keys())]
 }
 
-# set fixed parameters, eg collect_data = False. this includes all parameters not in problem
+# set fixed parameters, eg collect_data = False. this includes all
+# parameters not in problem
 fixed_parameters = {'collect_data': False,
                     'width': 50,
                     'height': 50,
@@ -85,17 +87,19 @@ for key in problem.keys():
     del fixed_parameters[key]
 
 ##### ?????? ######
-# The SA notebook does this, which is very different implementation than the example of the read the docs????
+# The SA notebook does this, which is very different implementation than
+# the example of the read the docs????
 repetitions = 10
 max_steps = 100
 distinct_samples = 10
 
 # param_values = saltelli.sample(problem_sampler, distinct_samples)
-# shouldnt the "N" passed to saltelli.sample be a power of 2, otherwise the Sobol' sequence isn't valid????
-""" /home/floor/.local/lib/python3.8/site-packages/SALib/sample/saltelli.py:94: UserWarning: 
+# shouldnt the "N" passed to saltelli.sample be a power of 2, otherwise
+# the Sobol' sequence isn't valid????
+""" /home/floor/.local/lib/python3.8/site-packages/SALib/sample/saltelli.py:94: UserWarning:
         Convergence properties of the Sobol' sequence is only valid if
         `N` (10) is equal to `2^n`.
-        
+
   warnings.warn(msg) """
 
 # according to the readthedocs from SALib
@@ -120,7 +124,8 @@ def run_model(args):
     var_param = {}
     for key, val in zip(problem_sampler['names'], parameter_setting):
         # transform into integer if required
-        # NOTE this is using global variable problem.. not the best method, so think about fix
+        # NOTE this is using global variable problem.. not the best method, so
+        # think about fix
         if problem[key][0] == int:
             val = round(val)
         var_param[key] = val
@@ -166,7 +171,7 @@ def main(args):
 
     print(f"Done! Took {end - start}")
     print(f"------ Saving data to {args['output_file']} --------")
-    np.savez('data/Sobol/'+args["output_file"], results=results,
+    np.savez('data/Sobol/' + args["output_file"], results=results,
              fixed_parameters=fixed_parameters, problem=problem_sampler, model_reporters=model_reporters)
 
 
@@ -220,4 +225,5 @@ if __name__ == "__main__":
 
 # so if we want to paralellize this among ourselves, we need to split up the param_values textfile
 # then run the model, which can be done in python
-# then save the outputs, however, they need to be on the same line as the parameter values (I assume!!)
+# then save the outputs, however, they need to be on the same line as the
+# parameter values (I assume!!)

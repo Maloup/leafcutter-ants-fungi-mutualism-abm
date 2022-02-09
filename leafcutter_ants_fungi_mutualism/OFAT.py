@@ -26,7 +26,8 @@ def collect_OFAT_data(fileName, problem, model_reporters, fixed_parameters,
     when save_data is set to true
     """
 
-    # create a dictionary where each dataframe is saved as the value of key variable name
+    # create a dictionary where each dataframe is saved as the value of key
+    # variable name
     data = {}
 
     for var in tqdm(problem.keys()):

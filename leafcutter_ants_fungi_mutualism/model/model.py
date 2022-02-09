@@ -32,7 +32,8 @@ def track_dormant_ants(model):
     caretakers_count = 0
     dormant_count = 0
     for agent in model.schedule.agents:
-        if isinstance(agent, AntAgent) and agent.state is AntWorkerState.CARETAKING:
+        if isinstance(
+                agent, AntAgent) and agent.state is AntWorkerState.CARETAKING:
             caretakers_count += 1
             if agent.dormant:
                 dormant_count += 1
@@ -68,7 +69,7 @@ def track_forager_fitness(model):
     """
     fitness_queue_list = list(model.nest.fitness_queue.queue)
     if len(fitness_queue_list) != 0:
-        return sum(fitness_queue_list)/len(fitness_queue_list)
+        return sum(fitness_queue_list) / len(fitness_queue_list)
     else:
         return 0.5
 
@@ -95,7 +96,7 @@ class LeafcutterAntsFungiMutualismModel(Model):
     def __init__(self, collect_data=True, seed=None,
                  num_ants=50, num_plants=30, width=50, height=50,
                  pheromone_lifespan=30, num_plant_leaves=100,
-                 initial_foragers_ratio=0.5, leaf_regrowth_rate=1/2,
+                 initial_foragers_ratio=0.5, leaf_regrowth_rate=1 / 2,
                  ant_death_probability=0.01, initial_fungus_energy=50,
                  fungus_decay_rate=0.005, energy_biomass_cvn=2.0,
                  fungus_larvae_cvn=0.9, energy_per_offspring=1.0,

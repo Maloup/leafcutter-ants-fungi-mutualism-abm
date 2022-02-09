@@ -28,7 +28,7 @@ def plot_param_var_conf(ax, df, var, param, i):
 
     stdev = df.groupby(var)[param].std()
 
-    ax.vlines(x, y-stdev, y + stdev, color='grey', alpha=0.8)
+    ax.vlines(x, y - stdev, y + stdev, color='grey', alpha=0.8)
     ax.plot(df[var], df[param], 'ko', markersize=0.8)
 
     ax.scatter(x, y, c='darkgreen', marker='o')
@@ -55,7 +55,7 @@ def plot_all_vars(data, model_reporters, save_fig=True, show_fig=False):
     Uses plot_param_var_conf to plot the OFAT results provided in data on separate axes
     """
 
-    fig, axs = plt.subplots(len(data.keys()), len(model_reporters), figsize=(5*len(model_reporters), 3.5*len(data.keys())),
+    fig, axs = plt.subplots(len(data.keys()), len(model_reporters), figsize=(5 * len(model_reporters), 3.5 * len(data.keys())),
                             constrained_layout=True
                             )
 

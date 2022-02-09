@@ -24,7 +24,7 @@ class Nest(Agent):
         """
         fitness_queue_list = list(self.fitness_queue.queue)
         if len(fitness_queue_list) != 0:
-            average_fitness = sum(fitness_queue_list)/len(fitness_queue_list)
+            average_fitness = sum(fitness_queue_list) / len(fitness_queue_list)
         else:
             # Assuming uniform apriori role distribution
             average_fitness = 0.5

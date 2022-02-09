@@ -13,10 +13,12 @@ fixed_parameters = {'collect_data': True,
                     'width': 50,
                     'height': 50,
                     'num_ants': 50,
-                    # For experiment 2 num_plants {30, 60, 120}, for experiment 1: 64
+                    # For experiment 2 num_plants {30, 60, 120}, for experiment
+                    # 1: 64
                     'num_plants': 64,
                     'pheromone_lifespan': 30,
-                    # For experiment 2 num_plant_leaves {100, 50, 25}, for experiment 1: 100
+                    # For experiment 2 num_plant_leaves {100, 50, 25}, for
+                    # experiment 1: 100
                     'num_plant_leaves': 100,
                     'initial_foragers_ratio': 0.5,
                     'leaf_regrowth_rate': 0.5,

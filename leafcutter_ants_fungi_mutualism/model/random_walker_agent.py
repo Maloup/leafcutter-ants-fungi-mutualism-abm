@@ -59,7 +59,7 @@ class BiasedRandomWalkerAgent(RandomWalkerAgent):
             dists = np.array([manhattan_distance(self.prev_pos, n)
                               for n in neighbors])
             # create probability mass function
-            prob_dist = dists/np.sum(dists)
+            prob_dist = dists / np.sum(dists)
             next_idx = np.random.choice(len(neighbors), p=prob_dist)
             next_pos = neighbors[next_idx]
 
