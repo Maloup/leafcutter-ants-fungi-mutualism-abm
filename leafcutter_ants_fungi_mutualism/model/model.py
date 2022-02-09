@@ -28,7 +28,6 @@ def track_dormant_ants(model):
     """
     Calculate ratio of dormant ants with respect to total number of caretakers
     """
-    # sum(1 for agent in model.schedule.agents if (isinstance(agent, AntAgent) and agent.dormant))
     caretakers_count = 0
     dormant_count = 0
     for agent in model.schedule.agents:
@@ -45,7 +44,7 @@ def track_dormant_ants(model):
 
 def track_ratio_foragers(model):
     """
-    Calculate ratio of foragers to total number ants
+    Calculate fraction of foragers in the ant population
     """
     n_ants = 0
     n_foragers = 0
@@ -55,6 +54,7 @@ def track_ratio_foragers(model):
             if agent.state is not AntWorkerState.CARETAKING:
                 n_foragers += 1
 
+    # avoid `ZeroDivisionError` 
     if n_ants > 0:
         return n_foragers / n_ants
     else:
@@ -102,6 +102,8 @@ class LeafcutterAntsFungiMutualismModel(Model):
                  max_fitness_queue_size=20, caretaker_roundtrip_mean=5.0,
                  caretaker_roundtrip_std=5.0, dormant_roundtrip_mean=60.0):
         super().__init__()
+        # model parameters
+        # please consult report for detailed explanation
         self.death_reason = None
         self.collect_data = collect_data
         self.num_ants = num_ants
@@ -158,15 +160,21 @@ class LeafcutterAntsFungiMutualismModel(Model):
         self.init_fungus()
 
     def init_nest(self):
+        """
+        Spawn a nest at the center of the model grid.
+        """
         self.nest = Nest(self.next_id(), self)
         self.schedule.add(self.nest)
         nest_pos = (self.grid.width // 2, self.grid.height // 2)
         self.grid.place_agent(self.nest, nest_pos)
 
     def init_plants(self):
+        """
+        Add a fixed number of plants to the grid. Cells for
+        housing plants are drawn from a uniform distribution that
+        excludes the cell housing the nest.
+        """
         for i in range(self.num_plants):
-            # XXX: should every plant have the same number of leaves, or should
-            # we add some randomness to that?
             agent = Plant(self.next_id(), self)
             self.schedule.add(agent)
 
@@ -181,6 +189,9 @@ class LeafcutterAntsFungiMutualismModel(Model):
             self.grid.place_agent(agent, (x, y))
 
     def init_ants(self):
+        """
+        Initialize a fixed number of ants with equal number of foragers (`EXPLORE` state) and caretakers (`CARETAKING` state).
+        """
         foragers_count = int(self.initial_foragers_ratio * self.num_ants)
         for i in range(foragers_count):
             # default state is explorer
@@ -195,6 +206,9 @@ class LeafcutterAntsFungiMutualismModel(Model):
             self.grid.place_agent(agent, self.nest.pos)
 
     def init_fungus(self):
+        """
+        Initialize a fungus agent with a fixed initial biomass determined by the `energy_biomass_cvn` attribute
+        """
         self.fungus = Fungus(self.next_id(), self)
         self.schedule.add(self.fungus)
         self.grid.place_agent(self.fungus, self.nest.pos)
