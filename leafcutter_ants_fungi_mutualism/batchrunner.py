@@ -3,6 +3,7 @@ from multiprocess import Pool, cpu_count
 
 from mesa.batchrunner import BatchRunner
 
+
 class BatchRunnerMP(BatchRunner):
     """Child class of BatchRunner, extended with multiprocessing support."""
 
@@ -144,7 +145,8 @@ class BatchRunnerMP(BatchRunner):
                     pbar.update()
 
                 self._result_prep_mp(results)
-        # For debugging model due to difficulty of getting errors during multiprocessing
+        # For debugging model due to difficulty of getting errors during
+        # multiprocessing
         else:
             for run in run_iter_args:
                 params, model_data = self._run_wrappermp(run)

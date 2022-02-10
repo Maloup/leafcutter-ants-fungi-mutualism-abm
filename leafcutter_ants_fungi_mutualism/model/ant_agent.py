@@ -9,28 +9,47 @@ from enum import Enum, auto
 
 
 class AntWorkerState(Enum):
-    EXPLORE = auto()
-    RECRUIT = auto()
-    HARVEST = auto()
-    CARETAKING = auto()
+    """
+    Enum for encoding the role and behaviour of ant agents
+    """
+    EXPLORE = auto()  # biased random walk
+    RECRUIT = auto()  # release pheromones, return to nest
+    HARVEST = auto()  # follow pheromone trail
+    CARETAKING = auto()  # stay at nest, feed larvae
 
 
 class DeathReason(Enum):
+    """
+    Enum for storing the reason why the ant colony "died". The colony
+    is considered doomed if either the fungus or all the ants die.
+    Whichever happens first is considered the reason for the colony's
+    death
+    """
     FUNGUS = auto()
     ANTS = auto()
 
 
-def track_death_reason(model):
+def track_death_reason(model) -> DeathReason:
+    """
+    Checks if the colony is doomed and returns the death reason enum,
+    which can then be assigned to the model's `death_reason` attribute.
+    A colony is considered doomed if either the fungus or all the ants die.
+    """
     if model.death_reason:
+        # death reason has already been recorded
         return model.death_reason
-    fungus_dead_p = model.fungus.dead
-    if fungus_dead_p:
+    # is the fungus dead?
+    if model.fungus.dead:
         return DeathReason.FUNGUS
 
+    # the fungus is not dead
+    # check if all ants are dead
     agents_list = model.schedule.agents
     for agent in agents_list:
         if isinstance(agent, AntAgent):
+            # a live ant is found
             return None
+    # no ants were found
     return DeathReason.ANTS
 
 
@@ -52,7 +71,7 @@ class AntAgent(BiasedRandomWalkerAgent):
             self.model.schedule.remove(self)
             return
 
-        # be nice if Python had pattern matching with enums
+        # check the ant's state and perform the corresponding action
         if self.state is AntWorkerState.EXPLORE:
             self.explore_step()
         elif self.state is AntWorkerState.RECRUIT:
@@ -66,7 +85,7 @@ class AntAgent(BiasedRandomWalkerAgent):
             self.neighbor_density_acc += self.get_neighborhood_density()
             self.trip_duration += 1
 
-    def explore_step(self):
+    def explore_step(self) -> None:
         """
         When in explore state, the worker ant does a random walk until one of
         the following events occurs:
@@ -87,10 +106,9 @@ class AntAgent(BiasedRandomWalkerAgent):
                 self.has_leaf = True
                 self.state = AntWorkerState.RECRUIT
         elif nearby_pheromones:
-            # XXX: should following state transition happen probabilistically?
             self.state = AntWorkerState.HARVEST
 
-    def recruit_step(self):
+    def recruit_step(self) -> None:
         """
         In the recruit state, the ant returns to the hive in a straight line
         (using its memory/sensing abilities) while leaving a pheromone trail for
@@ -110,7 +128,7 @@ class AntAgent(BiasedRandomWalkerAgent):
         self.model.grid.move_agent(
             self, (self.pos[0] + x_step, self.pos[1] + y_step))
 
-    def harvest_step(self):
+    def harvest_step(self) -> None:
         """
         In the harvest state, the ant follows the trail of pheromones towards
         the plant. If it arrives at a plant, it will cut a piece of leaf off and
@@ -151,30 +169,37 @@ class AntAgent(BiasedRandomWalkerAgent):
         outwards_pheromone = nearby_pheromones[rand_outwards]
         self.model.grid.move_agent(self, outwards_pheromone.pos)
 
-    def caretaking_step(self):
+    def caretaking_step(self) -> None:
         """
-        If enough fungus is available, then feed one unit to larvae
+        Check the health of the fungus (i.e. if its biomass has decreased).
+        If biomass has decreased, then the ant does not feed the fungus and
+        remains dormant for a normally distributed duration (semantically
+        modeled as a round-trip). Else feed one unit to larvae
         (decrement `fungus.biomass`, increment `nest.energy_buffer``).
         """
         if self.roundtrip_length is None:
+            # first call of care-taking step
             self.set_roundtrip_length(
                 mu=self.model.caretaker_roundtrip_mean, sigma=self.model.caretaker_roundtrip_std)
 
         self.roundtrip_length -= 1
         if self.roundtrip_length == 0:
-            self.dormant = False 
+            # dormancy time is up
+            self.dormant = False
+            # NB: `fitness` is not as in the Moran-process context
             fitness = arctan_activation_pstv(
-                self.model.fungus.biomass/self.fungus_biomass_start, 1
+                self.model.fungus.biomass / self.fungus_biomass_start, 1
             )
 
-            # dormancy
             if 0.5 > fitness:
+                # fungus health has declined, do not feed the larvae and remain
+                # dormant for some time
                 self.dormant = True
                 self.set_roundtrip_length(
                     mu=self.model.dormant_roundtrip_mean,
-                    sigma=self.model.dormant_roundtrip_mean/2)
+                    sigma=self.model.dormant_roundtrip_mean / 2)
 
-            # feeding
+            # feed the larvae
             else:
                 # `fungus.dead` tested inside `feed_larvae`
                 self.model.nest.feed_larvae()
@@ -182,7 +207,7 @@ class AntAgent(BiasedRandomWalkerAgent):
                 self.set_roundtrip_length(
                     mu=self.model.caretaker_roundtrip_mean, sigma=self.model.caretaker_roundtrip_std)
 
-    def put_pheromone(self):
+    def put_pheromone(self) -> None:
         """
         Put a pheromone on the current position of the ant if there is none yet,
         otherwise re-mark the cell.
@@ -197,7 +222,7 @@ class AntAgent(BiasedRandomWalkerAgent):
         self.model.schedule.add(agent)
         self.model.grid.place_agent(agent, self.pos)
 
-    def get_direction_towards_nest(self):
+    def get_direction_towards_nest(self) -> (int, int):
         """
         Get the direction tuple towards the nest. Returns a tuple with the
         first element corresponding to the x direction and the second element
@@ -212,7 +237,11 @@ class AntAgent(BiasedRandomWalkerAgent):
 
         return x_step, y_step
 
-    def get_nearby_plants_and_pheromones(self):
+    def get_nearby_plants_and_pheromones(self) -> ([int],[int]):
+        """
+        Returns two lists of pheromones and plants in the
+        Moore neighborhood of the current position.
+        """
         neighbors = self.model.grid.get_neighbors(
             self.pos, moore=True, include_center=True)
         nearby_plants = []
@@ -225,7 +254,12 @@ class AntAgent(BiasedRandomWalkerAgent):
 
         return nearby_plants, nearby_pheromones
 
-    def returned_to_nest(self):
+    def returned_to_nest(self) -> None:
+        """
+        If the ant has a leaf, feed the leaf to the fungus
+        and then conditionally switch role to caretaking
+        using the Moran process queue.
+        """
         # feed fungus first if we have a leaf
         if self.has_leaf:
             self.model.fungus.feed()
@@ -246,9 +280,9 @@ class AntAgent(BiasedRandomWalkerAgent):
         if self.random.random() <= (1 - interaction_prob):
             nest_content = self.model.grid.iter_cell_list_contents(self.pos)
             caretakers = list(filter(
-                lambda a: isinstance(
-                    a, AntAgent) and a.state is AntWorkerState.CARETAKING,
-                nest_content
+               lambda a: isinstance(
+                  a, AntAgent) and a.state is AntWorkerState.CARETAKING,
+             nest_content
             ))
             if caretakers:
                 drafted_caretaker = self.random.choice(caretakers)
@@ -262,28 +296,40 @@ class AntAgent(BiasedRandomWalkerAgent):
 
         self.reset_trip()
 
-    def get_neighborhood_density(self):
+    def get_neighborhood_density(self) -> float:
+        """
+        Calculates neighborhood density as the number of occupied
+        cells in the Moore neighborhood of the current position.
+        """
         neighbor_cells = self.model.grid.get_neighborhood(
             self.pos, moore=True, include_center=True)
 
         count = 0
         for cell in neighbor_cells:
             for agent in self.model.grid.iter_cell_list_contents(cell):
-                if isinstance(agent, AntAgent) and self.unique_id != agent.unique_id:
+                if isinstance(
+                        agent, AntAgent) and self.unique_id != agent.unique_id:
                     count += 1
                     break
 
-        neighbor_density = count/9
+        neighbor_density = count / 9
         return neighbor_density
 
-    def reset_trip(self):
+    def reset_trip(self) -> None:
+        """
+        Reset neighborhood density calculation variables.
+        """
         if self.model.collect_data:
             self.model.trip_durations.append(self.trip_duration)
 
         self.neighbor_density_acc = 0
         self.trip_duration = 0
 
-    def set_roundtrip_length(self, mu=5, sigma=5):
+    def set_roundtrip_length(self, mu=5, sigma=5) -> None:
+        """
+        set roundtrip length by drawing from a normal distribution
+        with mean `mu` and standard deviation `sigma`
+        """
         self.fungus_biomass_start = self.model.fungus.biomass
         # self.roundtrip_length = max(round(np.random.normal(mu, sigma)), 1)
-        self.roundtrip_length = round(np.random.uniform(1, mu*2))
+        self.roundtrip_length = round(np.random.uniform(1, mu * 2))

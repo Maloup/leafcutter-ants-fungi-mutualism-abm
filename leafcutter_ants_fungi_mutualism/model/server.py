@@ -45,7 +45,7 @@ def circle_portrayal_example(agent):
             "Shape": "circle",  # "leafcutter_ants_fungi_mutualism/resources/plant.png"
             "Color": "green",
             "Layer": 0,
-            "r": agent.num_leaves/agent.initial_num_leaves
+            "r": agent.num_leaves / agent.initial_num_leaves
         }
     elif isinstance(agent, Nest):
         return {
@@ -72,7 +72,7 @@ def circle_portrayal_example(agent):
             "Shape": "circle",
             "Color": "blue",
             "Layer": 0,
-            "r": agent.lifespan/agent.initial_lifespan
+            "r": agent.lifespan / agent.initial_lifespan
         }
     else:
         print(f"Not yet visualized agent {agent.__class__}!")
@@ -113,7 +113,7 @@ model_kwargs = {
         "slider", "Number of leaves on plant", 100, 1, 500, 1
     ),
     "leaf_regrowth_rate": UserSettableParameter(
-        "slider", "Leaf regrowth rate", 1/2, 0, 1, 0.01
+        "slider", "Leaf regrowth rate", 1 / 2, 0, 1, 0.01
     ),
     "pheromone_lifespan": UserSettableParameter(
         "slider", "Pheromone lifespan", 30, 1, 300, 1

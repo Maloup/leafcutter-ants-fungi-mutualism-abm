@@ -16,7 +16,7 @@ class Fungus(Agent):
         """
         Checks if biomass is less than death threshold. Updates
         `self.dead` accordingly. This should be called every time
-        `Nest.feed_larvae`. 
+        `Nest.feed_larvae`.
         """
         # TODO: change this to a predicate function instead of a
         # side-effect function for legibility?

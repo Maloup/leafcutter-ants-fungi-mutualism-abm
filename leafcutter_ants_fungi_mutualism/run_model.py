@@ -13,11 +13,13 @@ fixed_parameters = {'collect_data': True,
                     'width': 50,
                     'height': 50,
                     'num_ants': 50,
-                    #For experiment 2 num_plants {30, 60, 120}, for experiment 1: 64
+                    # For experiment 2 num_plants {30, 60, 120}, for experiment
+                    # 1: 64
                     'num_plants': 64,
                     'pheromone_lifespan': 30,
-                     #For experiment 2 num_plant_leaves {100, 50, 25}, for experiment 1: 100
-                    'num_plant_leaves': 100 ,
+                    # For experiment 2 num_plant_leaves {100, 50, 25}, for
+                    # experiment 1: 100
+                    'num_plant_leaves': 100,
                     'initial_foragers_ratio': 0.5,
                     'leaf_regrowth_rate': 0.5,
                     'ant_death_probability': 0.01,
@@ -32,7 +34,7 @@ fixed_parameters = {'collect_data': True,
                     'caretaker_roundtrip_mean': 5.0,
                     'caretaker_roundtrip_std': 5.0,
                     'dormant_roundtrip_mean': 60.0,
-}
+                    }
 
 
 def run_model(args):
@@ -57,9 +59,11 @@ def run_model_parallel(args):
     with mp.Pool(n_cores) as pool:
         for model in pool.imap_unordered(
             run_model,
-            [(LeafcutterAntsFungiMutualismModel, args) for _ in range(repetitions)]
+            [(LeafcutterAntsFungiMutualismModel, args)
+             for _ in range(repetitions)]
         ):
-            results.append(model.datacollector.get_model_vars_dataframe().to_dict())
+            results.append(
+                model.datacollector.get_model_vars_dataframe().to_dict())
             trip_durations.append(model.trip_durations)
 
     return results, trip_durations
@@ -72,13 +76,16 @@ def main(args):
 
     print(f"Done! Took {end - start}")
     print(f"------ Saving data to {args['output_file']} --------")
-    np.savez(args["output_file"], results=results, trip_durations=trip_durations)
+    np.savez(args["output_file"], results=results,
+             trip_durations=trip_durations)
 
 
 if __name__ == "__main__":
-    argparser = argparse.ArgumentParser(description="Leafcutter Ants Fungy Mutualism model runner")
+    argparser = argparse.ArgumentParser(
+        description="Leafcutter Ants Fungy Mutualism model runner")
 
-    argparser.add_argument("output_file", type=str, help="location of output file")
+    argparser.add_argument("output_file", type=str,
+                           help="location of output file")
     argparser.add_argument("-r", "--repetitions", type=int, default=1,
                            help="number of repeated model runs")
     argparser.add_argument("-t", "--time-steps", type=int, default=1000,
