@@ -49,6 +49,19 @@ optional arguments:
   -c COLLECT_TIMESERIES, --collect-timeseries COLLECT_TIMESERIES
                         collect timeseries data
 ```
+For example, the following command runs 100 repetitions of the model using 32 cores for 5000
+timeseries while collecting timeseries data:
+```bash
+$ python3 run_model.py data/N100_t5000.npz --repetitions=100 --n-cores=32 --collect-timeseries=True --time-steps=5000
+```
+
+### Visualization
+Data visualization notebooks can be found in the `leafcutter_ants_fungi_mutualism` folder:
+- `Experiments.ipynb` is used for creating the experimental result figures
+- `Gif visualization.ipynb` is used for creating the gif displayed above
+- `OFAT_visualization.ipynb` is used for visualizing OFAT results
+- `Sobol_visualization.ipynb` is used for visualizing Sobol results
+- `Time steps visualization.ipynb` is used for general timeseries visualization
 
 ## Mesa Changes
 In order to use the parallelized version of Mesa's [BatchRunner](https://mesa.readthedocs.io/en/latest/apis/batchrunner.html),
