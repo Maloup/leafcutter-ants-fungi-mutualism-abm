@@ -1,5 +1,5 @@
 """
-Sobol' (global) sensitivity analysis, based on methods provided by the SA notebook and the article of ten Broeke (2016)
+Sobol' (global) sensitivity analysis, based on methods provided by the SA notebook and the article of ten Broeke (2016), using SALib python package
 Script to run Sobol' SA and save data
 """
 from model import LeafcutterAntsFungiMutualismModel, track_ants, track_leaves, track_ratio_foragers
@@ -15,7 +15,6 @@ import argparse
 import multiprocess as mp
 from itertools import product
 
-
 from SALib.sample import saltelli
 from SALib.analyze import sobol
 
@@ -26,22 +25,12 @@ if not os.path.exists('figures/Sobol'):
 
 # from https://salib.readthedocs.io/en/latest/basics.html
 
-
 # define the parameters and ranges in a way that is not confusing; uncomment parameters to include in analysis
-problem = {  # 'num_ants': [int, [10,100]],
-    # 'num_plants': [int, [50,200]],
-    # 'pheromone_lifespan': [int, [5, 100]],
-    # 'num_plant_leaves': [int, [10, 200]],
-    # 'initial_foragers_ratio': [float, [0.1, 1.0]],
-    # 'leaf_regrowth_rate': [float, [0.01, 1.0]],
-    # 'ant_death_probability': [float, [0.002, 0.015]],
-    # 'initial_fungus_energy': [float, [10, 100]],
+problem = {
     'fungus_decay_rate': [float, [0.001, 0.02]],
     'energy_biomass_cvn': [float, [1, 4]],
     'fungus_larvae_cvn': [float, [0.55, 1.25]],
-    # 'max_fitness_queue_size': [int, [1, 20]],
     'caretaker_carrying_amount': [float, [0.5, 1.35]],
-    # 'dormant_roundtrip_mean': [float, [30, 80]],
     'caretaker_roundtrip_mean': [float, [5, 12]]
 }
 
@@ -72,7 +61,6 @@ fixed_parameters = {'collect_data': False,
                     'max_fitness_queue_size': 10,
                     'caretaker_carrying_amount': 1,
                     'caretaker_roundtrip_mean': 5,
-                    'caretaker_roundtrip_std': 5.0,  # note this is no longer a parameter that is used
                     'dormant_roundtrip_mean': 60.0,
                     }
 
