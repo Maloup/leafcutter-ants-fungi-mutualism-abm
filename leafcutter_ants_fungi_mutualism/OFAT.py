@@ -1,6 +1,10 @@
 """
 One-Factor-At-a-Time (OFAT) (local) sensitivity analysis, based on methods provided by the SA notebook and the article of ten Broeke (2016)
 Script to run OFAT using BatchRunnerMP and save data in the folder data/OFAT
+
+Run script as Python3 OFAT.py filename n_cores
+
+where n_cores specifies the number of cores to use for multiprocessing
 """
 from model import LeafcutterAntsFungiMutualismModel, track_ants, track_leaves, track_ratio_foragers
 from model import track_ants_leaves, track_dormant_ants
