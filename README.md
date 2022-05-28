@@ -50,7 +50,7 @@ optional arguments:
                         collect timeseries data
 ```
 For example, the following command runs 100 repetitions of the model using 32 cores for 5000
-timeseries while collecting timeseries data:
+time steps while collecting timeseries data:
 ```bash
 $ python3 run_model.py data/N100_t5000.npz --repetitions=100 --n-cores=32 --collect-timeseries=True --time-steps=5000
 ```
